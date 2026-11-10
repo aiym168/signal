@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<link rel="canonical" href="https://yangmao.devis.im/">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>AI 羊毛信号站 · 24 小时 AI 免费资源直播 + 大模型 API 网关雷达</title>
+<meta name="description" content="AI 羊毛信号站：24 小时滚动直播 AI 免费资源与全球优惠快讯，每整点更新；同时每 5 分钟探测 OpenAI、Claude、Gemini、DeepSeek、Kimi、智谱等大模型 API 网关的连通性与响应时间。">
+<meta name="theme-color" content="#050914">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='%23050914' stroke='%235ce1ff' stroke-width='4'/%3E%3Cpath d='M20 40l8-16 8 12 8-20' stroke='%23a78bfa' stroke-width='4' fill='none'/%3E%3C/svg%3E">
+<style>
+:root{--bg:#050914;--cyan:#5ce1ff;--violet:#a78bfa;--pink:#ff6bd5;--ok:#3ef0a0;--warn:#ffc164;--bad:#ff5d73;--muted:#8fa3c0;--card:rgba(14,24,44,.72);--line:rgba(92,225,255,.18);--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:#e8f1ff;font:16px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+a{color:var(--cyan)}
+body::before{content:"";position:fixed;inset:0;background:radial-gradient(900px 500px at 15% -10%,rgba(92,225,255,.16),transparent 60%),radial-gradient(800px 600px at 110% 10%,rgba(167,139,250,.18),transparent 60%),repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 40px),repeating-linear-gradient(90deg,rgba(255,255,255,.025) 0 1px,transparent 1px 40px);pointer-events:none;z-index:-1}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+header.top{display:flex;align-items:center;gap:14px;padding:16px 0}
+.logo{width:34px;height:34px;border-radius:10px;background:conic-gradient(from 200deg,var(--cyan),var(--violet),var(--pink),var(--cyan));box-shadow:0 0 22px rgba(92,225,255,.45)}
+.brand{font-weight:800;letter-spacing:.02em}.brand small{display:block;font:500 .72rem var(--mono);color:var(--muted);letter-spacing:.12em}
+.top nav{margin-left:auto;display:flex;gap:16px;font-size:.92rem}.top nav a{color:#cfe2ff;text-decoration:none}.top nav a:hover{color:var(--cyan)}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:26px;align-items:stretch;margin-top:10px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;backdrop-filter:blur(10px);box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.live{display:inline-flex;align-items:center;gap:8px;font:700 .78rem var(--mono);letter-spacing:.12em;color:var(--bad)}
+.live i{width:9px;height:9px;border-radius:50%;background:var(--bad);box-shadow:0 0 12px var(--bad);animation:pulse 1.4s infinite}
+@keyframes pulse{50%{opacity:.25}}
+h1{font-size:clamp(1.9rem,4.4vw,3.1rem);line-height:1.15;margin:10px 0 8px;background:linear-gradient(90deg,#fff,var(--cyan) 55%,var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{color:var(--muted);margin:0 0 18px}
+.player{position:relative;border-radius:18px;overflow:hidden;background:linear-gradient(160deg,#081428,#160c2e);border:1px solid rgba(92,225,255,.25)}
+canvas#viz{display:block;width:100%;height:190px}
+.pctrl{display:flex;align-items:center;gap:14px;padding:14px 16px;border-top:1px solid rgba(255,255,255,.06)}
+.play{width:64px;height:64px;flex:0 0 64px;border-radius:50%;border:0;background:var(--cyan);color:#031019;cursor:pointer;display:grid;place-items:center;box-shadow:0 0 30px rgba(92,225,255,.55)}
+.play svg{width:30px;height:30px;fill:currentColor}
+.np{min-width:0;flex:1}.np .k{font:600 .72rem var(--mono);color:var(--cyan);letter-spacing:.1em}.np b{display:block;font-size:1.12rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.np .meta{font:.8rem var(--mono);color:var(--muted)}
+.vol{width:90px;accent-color:var(--cyan)}
+.line{min-height:4.8em;margin-top:14px;padding:14px 16px;border-radius:14px;background:rgba(0,0,0,.25);border:1px dashed rgba(92,225,255,.2);color:#d9e6ff}
+.line small{display:block;font:.72rem var(--mono);color:var(--muted);margin-bottom:4px;letter-spacing:.08em}
+.links{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.links a{font-size:.82rem;padding:4px 10px;border-radius:999px;border:1px solid var(--line);text-decoration:none;background:rgba(92,225,255,.06)}
+.side h3{margin:0 0 10px;font-size:1rem}.kv{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kv div{padding:12px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)}
+.kv span{display:block;font:.72rem var(--mono);color:var(--muted);letter-spacing:.06em}.kv b{font:700 1.5rem var(--mono)}
+.kv .ok b{color:var(--ok)}.kv .warn b{color:var(--warn)}.kv .bad b{color:var(--bad)}
+.sched{margin:14px 0 0;padding:0;list-style:none;font-size:.9rem}.sched li{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)}.sched li span:last-child{font-family:var(--mono);color:var(--cyan)}
+section{margin:34px 0}
+.sh{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}.sh .idx{font:.75rem var(--mono);color:var(--cyan);letter-spacing:.12em}.sh h2{margin:0;font-size:1.5rem}
+.desc{color:var(--muted);margin:6px 0 16px;font-size:.92rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.pv{padding:14px 16px;border-radius:16px;background:var(--card);border:1px solid rgba(255,255,255,.08);position:relative;overflow:hidden}
+.pv::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--c,var(--muted))}
+.pv.up{--c:var(--ok)}.pv.warn{--c:var(--warn)}.pv.down{--c:var(--bad)}
+.pv .row{display:flex;justify-content:space-between;align-items:center;gap:8px}.pv b{font-size:1rem}
+.tag{font:600 .7rem var(--mono);padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.06);color:var(--muted)}
+.st{font:700 .78rem var(--mono);color:var(--c)}.ms{font:700 1.3rem var(--mono)}.ms small{font-size:.7rem;color:var(--muted)}
+.spark{display:flex;gap:2px;align-items:flex-end;height:26px;margin-top:8px}.spark i{flex:1;border-radius:2px;background:var(--ok);opacity:.8;min-height:3px}.spark i.warn{background:var(--warn)}.spark i.down{background:var(--bad);height:100%!important}
+.pv .foot{display:flex;justify-content:space-between;font:.74rem var(--mono);color:var(--muted);margin-top:6px}
+.note{font-size:.86rem;color:var(--muted);padding:14px 16px;border-radius:14px;border:1px solid rgba(255,193,100,.25);background:rgba(255,193,100,.05)}
+footer{padding:30px 0 50px;color:var(--muted);font-size:.86rem;border-top:1px solid rgba(255,255,255,.06);margin-top:40px}
+@media (max-width:860px){.hero{grid-template-columns:1fr}.top nav{display:none}canvas#viz{height:150px}.vol{display:none}}
+@media (prefers-reduced-motion:reduce){.live i{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top"><div class="logo"></div><div class="brand">AI 羊毛信号站<small>SIGNAL STATION · 24H LIVE</small></div>
+<nav><a href="#live">直播</a><a href="#radar">API 网关雷达</a><a href="https://aiym168.github.io/">AI 免费资源导航 ↗</a><a href="https://aiym168.github.io/deals/index.html">优惠情报 ↗</a></nav></header>
+
+<div class="hero" id="live">
+ <div class="panel">
+  <span class="live"><i></i>ON AIR · 24 小时直播中</span>
+  <h1>AI 羊毛信号站</h1>
+  <p class="lead">打开就能听：整点快讯、早晚报滚动播出，内容全部来自 <a href="https://aiym168.github.io/">AI大模型免费资源导航</a> 已收录的数据；右边和下面是大模型 API 网关的实时探测。</p>
+  <div class="player">
+   <canvas id="viz" width="1200" height="380" aria-hidden="true"></canvas>
+   <div class="pctrl">
+    <button class="play" id="play" aria-label="播放直播"><svg viewBox="0 0 24 24"><path id="ico" d="M8 5v14l11-7z"/></svg></button>
+    <div class="np"><span class="k">NOW PLAYING · 正在播出</span><b id="title">连接中…</b><span class="meta" id="meta">—</span></div>
+    <input class="vol" id="vol" type="range" min="0" max="1" step="0.05" value="0.9" aria-label="音量">
+   </div>
+  </div>
+  <div class="line" id="line"><small>正在播报</small><span id="lineText">点播放收听。所有链接会出现在这里。</span></div>
+  <div class="links" id="links"></div>
+ </div>
+ <div class="panel side">
+  <h3>信号面板</h3>
+  <div class="kv">
+   <div><span>在线听众</span><b id="lis">—</b></div>
+   <div class="ok"><span>网关正常</span><b id="rUp">—</b></div>
+   <div class="warn"><span>异常 / 限流</span><b id="rWarn">—</b></div>
+   <div class="bad"><span>不可达</span><b id="rDown">—</b></div>
+  </div>
+  <ul class="sched">
+   <li><span>整点快讯（新收录 · 即将截止 · 网关状态）</span><span>每小时 :02</span></li>
+   <li><span>AI 羊毛电台 · 早报</span><span>08:30</span></li>
+   <li><span>AI 羊毛电台 · 晚报</span><span>20:30</span></li>
+   <li><span>API 网关探测</span><span>每 5 分钟</span></li>
+   <li><span>服务器时间（北京）</span><span id="clock">—</span></li>
+  </ul>
+  <p class="desc" style="margin-top:14px">播客 App 订阅早晚报：<a href="https://aiym168.github.io/radio/feed.xml">RSS</a> · 文字稿：<a href="https://aiym168.github.io/radio/index.html">电台页</a></p>
+ </div>
+</div>
+
+<section id="radar">
+ <div class="sh"><span class="idx">02 / API GATEWAY RADAR</span><h2>大模型 API 网关雷达</h2></div>
+ <p class="desc">每 5 分钟不带密钥访问各家公开的模型列表接口，记录能否连通、HTTP 状态和响应时间；色条是最近 4 小时（48 次）的结果。<span id="rAt"></span></p>
+ <div class="grid" id="grid"></div>
+ <p class="note" style="margin-top:14px">怎么读：返回 200 / 401 / 403 / 404 说明接口网关在线（没带密钥被拒绝是正常的）；5xx 或 429 记为异常；超时或连不上记为不可达。这只能说明网关能不能连上，<b>不代表模型推理一定正常</b>。探测点在海外云服务器，经网络代理出站，延迟包含代理开销，和你在国内直连的速度不同。</p>
+</section>
+
+<footer>AI 羊毛信号站由 <a href="https://aiym168.github.io/">AI大模型免费资源导航</a> 的程序自动运营 · 内容全部来自公开数据，不编造活动，待核实的会明确说出 · 本站不收费、不代领、不索要账号密码或验证码 · 数据接口：<a data-api="/api/now.json" href="/api/now.json">/api/now.json</a> · <a data-api="/api/radar.json" href="/api/radar.json">/api/radar.json</a></footer>
+</div>
+<audio id="au" preload="none" crossorigin="anonymous"></audio>
+<script>window.STATION_REMOTE=1;</script>
+<script>
+function stationBoot(B){B=B||'';document.querySelectorAll('[data-api]').forEach(function(x){x.href=B+x.getAttribute('data-api')});
+var au=document.getElementById('au'),btn=document.getElementById('play'),ico=document.getElementById('ico'),cv=document.getElementById('viz'),cx=cv.getContext('2d');
+var ac,an,buf,playing=false;
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+var mirrorUrl=null,delayed=false,tries=0,usedMirror=null;
+function srcs(){var a=[];if(mirrorUrl&&mirrorUrl.indexOf(B||location.host)<0)a.push(mirrorUrl+B+'/stream.mp3');a.push(/trycloudflare\.com/.test(B||location.hostname)?B+'/stream.mp3?d=1':B+'/stream.mp3');return a;}
+function start(){var L=srcs(),u=L[Math.min(tries,L.length-1)];delayed=u.indexOf('d=1')>0;usedMirror=mirrorUrl;au.src=u+(u.indexOf('?')>0?'&':'?')+'t='+Date.now();au.volume=+document.getElementById('vol').value;
+ if(!ac){try{ac=new (window.AudioContext||window.webkitAudioContext)();var s=ac.createMediaElementSource(au);an=ac.createAnalyser();an.fftSize=256;buf=new Uint8Array(an.frequencyBinCount);s.connect(an);an.connect(ac.destination);}catch(e){}}
+ if(ac&&ac.state==='suspended')ac.resume();au.play().catch(function(){});}
+btn.onclick=function(){if(playing){au.pause();au.removeAttribute('src');au.load();}else start();};
+au.onplaying=function(){playing=true;ico.setAttribute('d','M6 6h12v12H6z');};
+au.onpause=function(){playing=false;ico.setAttribute('d','M8 5v14l11-7z');};
+au.onerror=function(){if(!au.getAttribute('src'))return;fetch(B+'/api/now.json',{cache:'no-store'}).then(function(r){return r.json()}).then(function(d){mirrorUrl=d.mirror}).catch(function(){}).then(function(){if(mirrorUrl&&mirrorUrl!==usedMirror){tries=0;start();}else if(tries<srcs().length-1){tries++;start();}else{playing=false;ico.setAttribute('d','M8 5v14l11-7z');}});};
+au.onstalled=function(){if(playing)setTimeout(start,1500)};
+document.getElementById('vol').oninput=function(){au.volume=+this.value};
+var t0=performance.now();
+function draw(){var w=cv.width,h=cv.height;cx.clearRect(0,0,w,h);var n=64,bw=w/n;var t=(performance.now()-t0)/1000;
+ for(var i=0;i<n;i++){var v;if(an&&playing){an.getByteFrequencyData(buf);v=buf[Math.floor(i*buf.length/n/1.3)]/255;}else v=.08+.06*Math.sin(t*1.6+i*.35);
+  var bh=Math.max(4,v*h*.9),x=i*bw+bw*.18,g=cx.createLinearGradient(0,h-bh,0,h);g.addColorStop(0,'#5ce1ff');g.addColorStop(1,'#a78bfa');cx.fillStyle=g;cx.globalAlpha=.9;
+  cx.fillRect(x,h-bh,bw*.64,bh);cx.globalAlpha=.18;cx.fillRect(x,0,bw*.64,Math.min(bh*.35,h*.3));}
+ cx.globalAlpha=1;requestAnimationFrame(draw);}
+if(!matchMedia('(prefers-reduced-motion: reduce)').matches)draw();
+function now(d){if(d.mirror!==undefined)mirrorUrl=d.mirror;if(delayed&&playing&&d.delayed){d.title=d.delayed.title||d.title;d.line=d.delayed.line;}document.getElementById('title').textContent=d.title||'准备中';document.getElementById('lis').textContent=d.listeners;
+ document.getElementById('meta').textContent=(d.kind==='bulletin'?'整点快讯':d.kind==='edition'?'早晚报':'台呼')+(d.duration?(' · '+Math.min(Math.round(d.elapsed),Math.round(d.duration))+' / '+Math.round(d.duration)+' 秒'):'');
+ if(d.line)document.getElementById('lineText').textContent=d.line;document.getElementById('clock').textContent=d.server_time||'—';
+ var r=d.radar||{};['Up','Warn','Down'].forEach(function(k){var v=r[k.toLowerCase()];document.getElementById('r'+k).textContent=v==null?'—':v;});
+ document.getElementById('links').innerHTML=(d.links||[]).map(function(l){var u=l.url||(l.path?'https://aiym168.github.io/'+l.path:'');return u?'<a href="'+esc(u)+'" target="_blank" rel="noopener nofollow">'+esc((l.title||'').slice(0,26))+' ↗</a>':'';}).join('');}
+var lastMsg=0;function got(d){lastMsg=Date.now();now(d)}function sse(){try{var es=new EventSource(B+'/events');es.onmessage=function(e){got(JSON.parse(e.data))};es.onerror=function(){es.close();setTimeout(sse,5000)};}catch(e){}}setInterval(function(){if(Date.now()-lastMsg>6000)fetch(B+'/api/now.json',{cache:'no-store'}).then(function(r){return r.json()}).then(function(d){now(d)}).catch(function(){})},3000);fetch(B+'/api/now.json',{cache:'no-store'}).then(function(r){return r.json()}).then(now).catch(function(){});
+sse();
+function radar(){fetch(B+'/api/radar.json',{cache:'no-store'}).then(function(r){return r.json()}).then(function(d){
+ document.getElementById('rAt').textContent=d.at?('最近一次：'+d.at+' 北京时间。'):'';
+ var L={up:'网关在线',warn:'异常',down:'不可达'};
+ document.getElementById('grid').innerHTML=(d.items||[]).map(function(x){var mx=Math.max.apply(null,(x.spark||[]).map(function(s){return s[1]||0}).concat([300]));
+  return '<div class="pv '+x.st+'"><div class="row"><b>'+esc(x.name)+'</b><span class="tag">'+esc(x.region)+'</span></div>'+
+  '<div class="row" style="margin-top:6px"><span class="st">● '+L[x.st]+(x.code?' · HTTP '+x.code:(x.err?' · '+esc(x.err):''))+'</span><span class="ms">'+(x.ms!=null?x.ms+'<small> ms</small>':'—')+'</span></div>'+
+  '<div class="spark">'+(x.spark||[]).map(function(s){return '<i class="'+s[0]+'" style="height:'+(s[1]?Math.max(10,100*s[1]/mx):100)+'%"></i>'}).join('')+'</div>'+
+  '<div class="foot"><span>24h 可用 '+(x.uptime!=null?x.uptime+'%':'—')+'</span><span>中位 '+(x.p50!=null?x.p50+' ms':'—')+'</span></div></div>';}).join('')||'<p class="desc">第一轮探测进行中…</p>';}).catch(function(){});}
+radar();setInterval(radar,60000);
+}
+if(!window.STATION_REMOTE)stationBoot('');
+</script>
+<script>
+(function(){
+ function off(t){var e=document.getElementById('title');if(e)e.textContent=t;var l=document.getElementById('lineText');if(l)l.textContent='信号站正在休眠或更换地址，通常几分钟内恢复。可以先去 AI 羊毛电台收听往期节目：https://aiym168.github.io/radio/';}
+ fetch('https://aiym168.github.io/api/live.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json()}).then(function(d){
+  var U=(d.urls||[]),i=0;
+  (function next(){ if(i>=U.length){off('信号站暂时离线');return;} var u=U[i++];
+    var c=new AbortController(),t=setTimeout(function(){c.abort()},9000);
+    fetch(u+'/healthz',{cache:'no-store',signal:c.signal}).then(function(r){clearTimeout(t);if(!r.ok)throw 0;stationBoot(u);}).catch(function(){clearTimeout(t);next();});
+  })();
+ }).catch(function(){off('信号站暂时离线');});
+})();
+</script>
+</body></html>
