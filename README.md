@@ -7,6 +7,7 @@
 网页通过 <https://aiym168.github.io/api/live.json> 找到后端当前地址。
 
 - 入口：https://yangmao.devis.im/ · https://aiym168.github.io/live/
+- 打卡中国（足迹地图 + 好友 + 抢答 + 排行榜）：https://yangmao.devis.im/daka/
 - 接口：`/api/now.json`、`/api/radar.json`、`/stream.mp3`（后端地址见 api/live.json）
 
 MIT License

@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<script>window.DAKA_REMOTE=1;</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>打卡中国 · 点亮你的足迹地图，和好友一起猜景点</title>
+<meta name="description" content="打卡中国：点亮去过的省份和景点，收集印章和称号；和好友比足迹、抢答猜景点、1v1 对战、组队一起点亮一个省，还有实时排行榜。">
+<meta name="theme-color" content="#060b18">
+<style>
+:root{--bg:#060b18;--panel:rgba(14,24,46,.82);--line:rgba(120,200,255,.18);--cyan:#5ce1ff;--violet:#a78bfa;--pink:#ff7ad9;--gold:#ffd166;--green:#5cffb0;--red:#ff7a7a;--text:#e8f1ff;--muted:#8fa3c4;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+body{background:radial-gradient(1200px 600px at 80% -10%,rgba(167,139,250,.18),transparent),radial-gradient(900px 500px at -10% 20%,rgba(92,225,255,.12),transparent),var(--bg);min-height:100vh;padding-bottom:84px}
+a{color:var(--cyan)}button{font:inherit;color:inherit;cursor:pointer}
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:10px 16px;background:rgba(6,11,24,.86);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.logo{font-weight:800;font-size:18px;letter-spacing:.02em;background:linear-gradient(90deg,var(--cyan),var(--violet),var(--pink));-webkit-background-clip:text;color:transparent;white-space:nowrap}
+.top .sp{flex:1}.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04);font-size:13px;white-space:nowrap}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}.dot.off{background:var(--red);box-shadow:0 0 8px var(--red)}
+.bell{position:relative;background:none;border:1px solid var(--line);border-radius:12px;padding:4px 10px}.bell b{position:absolute;top:-6px;right:-6px;background:var(--pink);color:#000;border-radius:999px;font-size:11px;padding:0 5px}
+.me-btn{background:none;border:1px solid var(--line);border-radius:12px;padding:3px 10px;max-width:40vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+nav.tabs{position:fixed;bottom:0;left:0;right:0;z-index:30;display:flex;justify-content:space-around;background:rgba(6,11,24,.94);border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+nav.tabs button{background:none;border:0;display:flex;flex-direction:column;align-items:center;font-size:12px;color:var(--muted);padding:4px 6px;border-radius:12px;min-width:52px}
+nav.tabs button i{font-style:normal;font-size:20px;line-height:1.2}nav.tabs button.on{color:var(--cyan);background:rgba(92,225,255,.08)}
+@media(min-width:900px){nav.tabs{position:sticky;top:57px;bottom:auto;justify-content:center;gap:8px;border-top:0;border-bottom:1px solid var(--line);z-index:19}nav.tabs button{flex-direction:row;gap:6px;font-size:14px}body{padding-bottom:0}}
+main{max-width:1100px;margin:0 auto;padding:14px}
+.banner{display:none;margin:10px auto 0;max-width:1100px;padding:10px 14px;border-radius:14px;background:rgba(255,122,122,.12);border:1px solid rgba(255,122,122,.35);font-size:14px}.banner.show{display:block}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:16px;margin-bottom:14px;box-shadow:0 10px 40px rgba(0,0,0,.25)}
+.panel h2{margin:0 0 10px;font-size:18px}.panel h3{margin:6px 0 8px;font-size:15px;color:var(--muted);font-weight:600}
+.grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:14px}@media(max-width:860px){.grid2{grid-template-columns:1fr}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 16px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.05);font-weight:600;text-decoration:none;color:var(--text)}
+.btn.pri{background:linear-gradient(90deg,var(--cyan),var(--violet));color:#05101e;border:0}.btn.sm{padding:5px 10px;font-size:13px;border-radius:10px}.btn.warn{border-color:rgba(255,209,102,.5);color:var(--gold)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+input,select{font:inherit;color:var(--text);background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:12px;padding:9px 12px;outline:none}input:focus{border-color:var(--cyan)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.muted{color:var(--muted)}.small{font-size:13px}.mono{font-family:var(--mono)}
+.map{width:100%;height:auto;display:block}.map path.p{fill:#14263f;stroke:rgba(92,225,255,.45);stroke-width:.4;cursor:pointer;transition:fill .3s}
+.map path.p:hover{fill:#1f3a5e}.map path.lit{fill:url(#litg)}.map path.both{fill:#5cffb0}.map path.me{fill:#5ce1ff}.map path.them{fill:#ff7ad9}.map path.jd{fill:none;stroke:rgba(92,225,255,.6);stroke-width:.6}
+.map text{font-size:6px;fill:rgba(232,241,255,.75);pointer-events:none;text-anchor:middle}.mapwrap{position:relative}
+.inset{position:absolute;right:2%;bottom:3%;width:14%;border:1px solid var(--line);border-radius:6px;background:rgba(6,11,24,.6)}
+.inset path{fill:#14263f;stroke:rgba(92,225,255,.45);stroke-width:.4}.inset path.lit{fill:#5ce1ff}.inset path.jd{fill:none;stroke:rgba(92,225,255,.7);stroke-width:.8}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{padding:10px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--line);text-align:center}
+.stat b{display:block;font-size:22px;font-family:var(--mono);color:var(--cyan)}.stat span{font-size:12px;color:var(--muted)}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}.seg button{padding:5px 12px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.03);font-size:13px}.seg button.on{background:rgba(92,225,255,.16);border-color:var(--cyan);color:var(--cyan)}
+.podium{display:grid;grid-template-columns:1fr 1.15fr 1fr;align-items:end;gap:10px;margin:18px 0 12px}
+.pod{text-align:center;padding:12px 6px;border-radius:18px 18px 8px 8px;border:1px solid var(--line);background:rgba(255,255,255,.04);position:relative;min-width:0}
+.pod .av{font-size:34px}.pod .nm{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pod .v{font-family:var(--mono);font-size:20px}
+.pod.r1{min-height:170px;background:linear-gradient(180deg,rgba(255,209,102,.25),rgba(255,209,102,.04));border-color:rgba(255,209,102,.6)}.pod.r1 .v{color:var(--gold)}
+.pod.r2{min-height:140px;background:linear-gradient(180deg,rgba(200,215,240,.22),rgba(255,255,255,.03))}.pod.r3{min-height:120px;background:linear-gradient(180deg,rgba(230,150,90,.22),rgba(255,255,255,.03))}
+.pod .crown{position:absolute;top:-18px;left:0;right:0;font-size:22px}
+.lbrow{display:grid;grid-template-columns:44px 36px 1fr auto 46px;align-items:center;gap:8px;padding:8px 10px;border-radius:12px}.lbrow:nth-child(odd){background:rgba(255,255,255,.025)}
+.lbrow.mine{background:rgba(92,225,255,.12)!important;outline:1px solid rgba(92,225,255,.4)}.lbrow .rk{font-family:var(--mono);font-weight:700;color:var(--muted)}.lbrow .av{font-size:24px}
+.lbrow .v{font-family:var(--mono);font-weight:700}.up{color:var(--green)}.down{color:var(--red)}.same{color:var(--muted)}
+.mybar{position:sticky;bottom:78px;z-index:5;margin-top:10px;padding:10px 14px;border-radius:16px;background:linear-gradient(90deg,rgba(20,60,90,.95),rgba(50,30,90,.95));border:1px solid rgba(92,225,255,.45);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+@media(min-width:900px){.mybar{bottom:10px}}
+.feed-item{padding:12px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.03);margin-bottom:10px}.feed-item .hd{display:flex;gap:10px;align-items:center}.feed-item .av{font-size:28px}
+.reacts{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.reacts button{border:1px solid var(--line);background:rgba(255,255,255,.04);border-radius:999px;padding:2px 9px;font-size:13px}.reacts button.mine{border-color:var(--pink);background:rgba(255,122,217,.14)}
+.cmts{margin-top:8px;padding-left:10px;border-left:2px solid var(--line);font-size:14px}.cmts p{margin:3px 0}
+.list>div{display:flex;align-items:center;gap:10px;padding:9px;border-radius:12px}.list>div:nth-child(odd){background:rgba(255,255,255,.03)}.list .av{font-size:26px}
+.quiz{text-align:center}.quiz .prompt{font-size:20px;font-weight:700;margin:12px 0}.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}.opts button{padding:14px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.05);font-size:16px;font-weight:600}
+.opts button.sel{border-color:var(--cyan);background:rgba(92,225,255,.15)}.opts button.ok{border-color:var(--green);background:rgba(92,255,176,.18)}.opts button.no{border-color:var(--red);background:rgba(255,122,122,.15)}
+.timer{height:8px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden}.timer i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--gold),var(--red));transition:width .2s linear}
+.badge{display:inline-flex;gap:4px;align-items:center;padding:3px 10px;border-radius:999px;background:rgba(167,139,250,.16);border:1px solid rgba(167,139,250,.45);font-size:13px;margin:2px}
+.stampgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}.stamp{padding:8px;border-radius:14px;border:1px dashed var(--line);text-align:center;font-size:12px;color:var(--muted);cursor:pointer}
+.stamp.got{border:2px solid rgba(255,122,217,.6);color:var(--text);background:rgba(255,122,217,.08);transform:rotate(-2deg)}.stamp .e{font-size:24px;display:block}.stamp.live{border-color:var(--gold)}
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:50;display:none;align-items:flex-end;justify-content:center}.sheet-bg.show{display:flex}
+.sheet{width:min(560px,100%);max-height:88vh;overflow:auto;background:#0b1428;border:1px solid var(--line);border-radius:22px 22px 0 0;padding:18px}
+@media(min-width:700px){.sheet-bg{align-items:center}.sheet{border-radius:22px}}
+.toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);z-index:60;background:#13223f;border:1px solid var(--cyan);padding:8px 16px;border-radius:12px;display:none}.toast.show{display:block}
+.avpick{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}.avpick button{font-size:24px;border:1px solid var(--line);background:rgba(255,255,255,.03);border-radius:10px;padding:4px}.avpick button.on{border-color:var(--cyan);background:rgba(92,225,255,.15)}
+.hidden{display:none!important}.center{text-align:center}.code{font-family:var(--mono);font-size:22px;letter-spacing:.15em;color:var(--gold)}
+.pl{display:flex;flex-wrap:wrap;gap:8px}.pl span{padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04)}
+footer{max-width:1100px;margin:10px auto 30px;padding:0 14px;color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+<header class="top"><span class="logo">打卡中国</span><span class="chip"><span class="dot" id="dot"></span><span id="onl">连接中</span></span><span class="sp"></span>
+<button class="bell" id="bell" title="通知">🔔<b id="unread" class="hidden">0</b></button><button class="me-btn" id="mebtn">🙂 起个昵称</button></header>
+<nav class="tabs" id="tabs">
+<button data-t="home" class="on"><i>🗺️</i>足迹</button><button data-t="lb"><i>🏆</i>排行榜</button><button data-t="arena"><i>⚔️</i>竞技</button><button data-t="feed"><i>💬</i>动态</button><button data-t="friends"><i>👥</i>好友</button><button data-t="me"><i>🎖️</i>我的</button></nav>
+<div class="banner" id="offline">📴 离线模式：服务器暂时连不上（可能在休眠或更换地址）。你的打卡会先存在这台设备上，恢复连接后自动同步。</div>
+<main id="main"></main>
+<footer>打卡中国 · 足迹为自报，带 📍 的是现场定位打卡（只用于判断所在省份，坐标不保存）· 不收集真实姓名和手机号 · 内容会自动过滤并可举报 · 同站：<a href="https://aiym168.github.io/">AI大模型免费资源导航</a> · <a href="https://aiym168.github.io/signal/">AI 羊毛信号站</a></footer>
+<div class="sheet-bg" id="sheetbg"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+<script src="static/qrcode.js"></script>
+<script>
+(function(){
+'use strict';
+var S = {B: null, tok: localStorage.getItem('dk_tok'), me: null, prof: null, data: null, online: 0, tab: 'home', ws: null, offline: false,
+  pending: JSON.parse(localStorage.getItem('dk_pending') || '[]'), local: JSON.parse(localStorage.getItem('dk_local') || 'null'), room: null, lbq: {dim: 'prov', scope: 'global', period: 'all'}, feedScope: 'all', quiz: null};
+window.__dk = S;
+var $ = function(s, r){return (r || document).querySelector(s)}, $$ = function(s, r){return Array.prototype.slice.call((r || document).querySelectorAll(s))};
+function esc(s){return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function toast(m){var t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(function(){t.classList.remove('show')}, 2600)}
+function ago(ts){var d = Date.now() / 1000 - ts; return d < 60 ? '刚刚' : d < 3600 ? Math.floor(d / 60) + ' 分钟前' : d < 86400 ? Math.floor(d / 3600) + ' 小时前' : Math.floor(d / 86400) + ' 天前'}
+var AV = Array.from('🐼🦊🐯🐨🐸🐵🦁🐰🐱🐶🐻🐧🦄🐲🐳🐙🦉🐝🌸🌻🍀🌈🏯🚀🎒📷🧭🍜🥟🐬');
+var EMO = ['👍','❤️','😂','😮','🔥','👏'];
+var DIMS = {prov: '点亮省份', stamp: '景点印章', live: '现场印章', daily: '猜景点得分', streak: '连续挑战', duel: '对战胜场'};
+var UNIT = {prov: '省', stamp: '枚', live: '枚', daily: '分', streak: '天', duel: '胜'};
+var SHARE = /^(127\.|localhost)/.test(location.hostname) ? location.origin + location.pathname : 'https://aiym168.github.io/signal/daka/';  // stable link for sharing (tunnel addresses change)
+// ---------- backend discovery (served by the station itself, or from the always-on page that looks up the station's current address)
+function base(){
+  if (!/^(127\.|localhost)/.test(location.hostname)) fetch('https://aiym168.github.io/api/live.json?t=' + Date.now(), {cache: 'no-store'}).then(function(r){return r.json()}).then(function(d){if (d.domain) SHARE = d.domain.replace(/\/?$/, '/') + 'daka/'}).catch(function(){});
+  if (!window.DAKA_REMOTE) return fetch(location.origin + '/daka/api/overview', {cache: 'no-store'}).then(function(r){if (!r.ok) throw 0; return location.origin + '/daka'});
+  return fetch('https://aiym168.github.io/api/live.json?t=' + Date.now(), {cache: 'no-store'}).then(function(r){return r.json()}).then(function(d){
+    var U = d.urls || [], i = 0;
+    return new Promise(function(ok, no){(function nx(){if (i >= U.length) return no(); var u = U[i++];
+      fetch(u + '/daka/api/overview', {cache: 'no-store'}).then(function(r){if (!r.ok) throw 0; ok(u + '/daka')}).catch(nx)})()});
+  });
+}
+function api(p, body){
+  if (!S.B) return Promise.reject(new Error('离线中，稍后再试'));
+  var o = {method: body ? 'POST' : 'GET', headers: {'X-Token': S.tok || '', 'Content-Type': 'application/json'}};
+  if (body) o.body = JSON.stringify(body);
+  return fetch(S.B + '/api/' + p, o).then(function(r){return r.json().then(function(j){if (!r.ok) {var e = new Error(j.error || '出错了'); e.status = r.status; throw e} return j})},
+    function(){setOffline(true); throw new Error('离线中，稍后再试')});
+}
+function setOffline(v){S.offline = v; $('#offline').classList.toggle('show', v); $('#dot').classList.toggle('off', v); if (v) $('#onl').textContent = '离线'}
+// ---------- websocket
+function connect(){
+  if (!S.B) return;
+  try { if (S.ws) {S.ws.onclose = null; S.ws.close()} } catch (e) {}
+  var ws = new WebSocket(S.B.replace(/^http/, 'ws') + '/ws' + (S.tok ? '?token=' + encodeURIComponent(S.tok) : '')); S.ws = ws;
+  ws.onopen = function(){setOffline(false); connect.n = 0; flush()};
+  ws.onmessage = function(e){var m; try {m = JSON.parse(e.data)} catch (x) {return} onMsg(m)};
+  ws.onclose = function(){if (S.ws !== ws) return; connect.n = (connect.n || 0) + 1; if (connect.n > 2) setOffline(true); setTimeout(function(){connect.n > 2 ? boot.retry() : connect()}, Math.min(30000, 1500 * connect.n))};
+}
+function send(m){if (S.ws && S.ws.readyState === 1) S.ws.send(JSON.stringify(m)); else toast('实时连接断开了，正在重连…')}
+setInterval(function(){if (S.ws && S.ws.readyState === 1) S.ws.send('{"t":"ping"}')}, 20000);
+function onMsg(m){
+  if (m.t === 'hello' || m.t === 'online' || m.t === 'pong') {S.online = m.online || m.n; $('#onl').textContent = S.online + ' 人在线'}
+  if (m.t === 'notify') {loadMe(); var d = m.data || {}; var k = {friend_req: '新的好友请求', friend_ok: '好友请求通过了', like: '有人给你点了 ' + (d.emoji || '👍'), comment: '有人评论了你', room_invite: '好友邀请你' + (d.mode === 'duel' ? '对战' : '进房间') + '，点 🔔 加入', team_join: '有人加入了你的小队', team_goal: '小队目标达成！', title: '获得新称号：' + (d.title || ''), challenge: '有人挑战了你的题目'}[m.kind]; if (k) toast('🔔 ' + k)}
+  if (m.t === 'lb' && (S.tab === 'lb' || S.tab === 'home')) {clearTimeout(onMsg.lb); onMsg.lb = setTimeout(function(){S.tab === 'lb' ? loadLb(true) : homeLb()}, 600)}
+  if ((m.t === 'feed' || m.t === 'feed.update') && S.tab === 'feed') {clearTimeout(onMsg.f); onMsg.f = setTimeout(function(){if (!document.activeElement || !document.activeElement.hasAttribute('data-cin')) loadFeed()}, 800)}
+  if (m.t === 'error' || m.t === 'toast') toast(m.msg);
+  if (m.t === 'duel.waiting') {S.room = {waiting: true}; S.tab === 'arena' ? render() : go('arena')}
+  if (m.t === 'room') {S.room = Object.assign(S.room && S.room.code === m.code ? S.room : {}, m); if (S.tab !== 'arena') go('arena'); else roomView()}
+  if (m.t === 'room.countdown') {S.room.count = m.s; roomView()}
+  if (m.t === 'room.q') {S.room.q = m.q; S.room.qend = Date.now() + m.deadline_ms; S.room.pick = null; S.room.rev = null; S.room.answeredN = 0; roomView()}
+  if (m.t === 'room.answered') {S.room.answeredN = m.n; var a = $('#rans'); if (a) a.textContent = m.n + ' 人已作答'}
+  if (m.t === 'room.reveal') {S.room.rev = m; Object.assign(S.room, m.room); roomView()}
+  if (m.t === 'room.end') {Object.assign(S.room, m.room); S.room.ended = true; roomView(); loadMe()}
+}
+// ---------- identity + offline queue
+function savePending(){localStorage.setItem('dk_pending', JSON.stringify(S.pending))}
+function flush(){
+  if (!S.B) return;
+  var p = Promise.resolve();
+  if (!S.tok && S.local) p = api('register', {nick: S.local.nick, avatar: S.local.avatar}).then(gotIdentity);
+  p.then(function(){
+    if (!S.tok || !S.pending.length) return;
+    var items = S.pending.slice(0, 40);
+    return api('sync', {items: items}).then(function(){S.pending = S.pending.slice(items.length); savePending(); toast('离线打卡已同步 ✅'); loadMe()});
+  }).catch(function(){});
+}
+function gotIdentity(r){
+  S.tok = r.token; localStorage.setItem('dk_tok', r.token); S.local = null; localStorage.removeItem('dk_local');
+  if (r.recovery) sheet('<h2>🎉 身份已创建</h2><p>这是你的<b>恢复码</b>，换手机或清缓存后用它找回账号。只显示这一次，请截图或抄下来：</p><p class="code center">' + esc(r.recovery) + '</p><p class="muted small">我们不收集手机号和真实姓名，所以丢了恢复码就没法找回。</p><div class="row"><button class="btn pri" data-close>我记下了</button></div>');
+  connect(); return loadMe();
+}
+function loadMe(){
+  if (!S.tok) return Promise.resolve();
+  return api('me').then(function(p){S.prof = p; S.me = p.user; localStorage.setItem('dk_prof', JSON.stringify(p)); $('#mebtn').textContent = p.user.avatar + ' ' + p.user.nick;
+    var u = $('#unread'); u.textContent = p.unread; u.classList.toggle('hidden', !p.unread); if ((S.tab === 'home' || S.tab === 'me') && !$('#sheetbg').classList.contains('show')) render()})
+  .catch(function(e){if (e.status === 401) {S.tok = null; localStorage.removeItem('dk_tok')}});
+}
+function myLit(){var s = {}; (S.prof ? S.prof.lit : []).forEach(function(p){s[p] = 1}); S.pending.forEach(function(x){var p = x.prov || (x.spot || '').split('-')[0]; s[p] = 1}); return s}
+function myStamps(){var s = {}; (S.prof ? S.prof.stamps : []).forEach(function(x){s[x.spot] = x}); S.pending.forEach(function(x){if (x.spot) s[x.spot] = s[x.spot] || {spot: x.spot, pending: 1}}); return s}
+function needId(then){
+  if (S.tok || S.local) return then && then();
+  var pick = AV[Math.floor(Math.random() * AV.length)];
+  sheet('<h2>起个昵称就能玩</h2><p class="muted small">不用注册、不要手机号。身份绑定在这台设备上，可以用恢复码转移到别的设备。</p>' +
+    '<p><input id="nk" maxlength="12" placeholder="昵称（最多 12 个字）" style="width:100%"></p><div class="avpick" id="avp">' + AV.map(function(a){return '<button data-a="' + a + '"' + (a === pick ? ' class="on"' : '') + '>' + a + '</button>'}).join('') + '</div>' +
+    '<p class="row" style="margin-top:14px"><button class="btn pri" id="mk">开始打卡</button><button class="btn" id="hasrec">我有恢复码</button></p>');
+  $('#avp').onclick = function(e){var b = e.target.closest('button'); if (!b) return; $$('#avp button').forEach(function(x){x.classList.remove('on')}); b.classList.add('on'); pick = b.dataset.a};
+  $('#mk').onclick = function(){var n = $('#nk').value.trim(); if (!n) return toast('先起个昵称');
+    if (!S.B) {S.local = {nick: n, avatar: pick}; localStorage.setItem('dk_local', JSON.stringify(S.local)); closeSheet(); toast('离线身份已保存，联网后自动创建'); render(); if (then) then(); return}
+    api('register', {nick: n, avatar: pick}).then(gotIdentity).then(function(){if (then) then(); render()}).catch(function(e){toast(e.message)})};
+  $('#hasrec').onclick = function(){sheet('<h2>用恢复码找回</h2><p><input id="rc" placeholder="XXXX-XXXX-XXXX-XXXX" style="width:100%" class="mono"></p><button class="btn pri" id="rcgo">找回</button>');
+    $('#rcgo').onclick = function(){api('recover', {code: $('#rc').value}).then(function(r){closeSheet(); return gotIdentity(r)}).then(render).catch(function(e){toast(e.message)})}};
+}
+function sheet(h){$('#sheet').innerHTML = h; $('#sheetbg').classList.add('show')}
+function closeSheet(){$('#sheetbg').classList.remove('show')}
+document.addEventListener('keydown', function(e){if (e.key === 'Escape') closeSheet()});
+$('#sheetbg').addEventListener('click', function(e){if (e.target.id === 'sheetbg' || e.target.hasAttribute('data-close')) closeSheet()});
+// ---------- map
+function mapSvg(mode, a, b){
+  var D = S.data; if (!D) return '<p class="muted">地图加载中…</p>';
+  function cls(id){if (mode === 'cmp') {var x = a[id], y = b[id]; return x && y ? 'both' : x ? 'me' : y ? 'them' : ''} return a[id] ? 'lit' : ''}
+  var paths = D.provinces.map(function(p){return p.id === 'jd' ? '<path class="jd" d="' + p.path + '"/>' : '<path class="p ' + cls(p.id) + '" data-p="' + p.id + '" d="' + p.path + '"><title>' + esc(p.name) + '</title></path>'}).join('');
+  var labels = D.provinces.filter(function(p){return p.short && !/香港|澳门/.test(p.short)}).map(function(p){return '<text x="' + p.cx + '" y="' + p.cy + '">' + esc(p.short) + '</text>'}).join('');
+  var defs = '<defs><linearGradient id="litg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5ce1ff"/><stop offset="1" stop-color="#a78bfa"/></linearGradient></defs>';
+  return '<div class="mapwrap' + (mode === 'cmp' ? ' cmpmap' : '') + '"><svg class="map" viewBox="' + D.viewBox + '" role="img" aria-label="足迹地图">' + defs + paths + labels + '</svg>' +
+    '<svg class="inset" viewBox="' + D.inset + '" aria-label="南海诸岛">' + paths.replace(/ data-p="[^"]+"/g, '') + '</svg></div>';
+}
+function provSheet(pid){
+  var p = S.data.provinces.filter(function(x){return x.id === pid})[0]; if (!p || !p.spots) return; var st = myStamps(); var lit = myLit()[pid];
+  sheet('<h2>' + esc(p.name) + (lit ? ' <span class="badge">已点亮</span>' : '') + '</h2>' + p.spots.map(function(s){var g = st[s.id];
+    return '<div class="feed-item"><div class="hd"><span class="av">' + s.emoji + '</span><div style="flex:1"><b>' + esc(s.name) + '</b>' + (g ? (g.live ? ' <span class="badge">📍 现场章</span>' : g.pending ? ' <span class="badge">待同步</span>' : ' <span class="badge">已盖章</span>') : '') + '<div class="muted small">' + esc(s.clue) + '</div></div></div>' +
+      '<div class="row" style="margin-top:8px"><button class="btn sm" data-ck="' + s.id + '"' + (g ? ' disabled' : '') + '>我去过</button><button class="btn sm warn" data-live="' + s.id + '"' + (g && g.live ? ' disabled' : '') + '>📍 现场打卡</button></div></div>'}).join('') +
+    '<div class="row"><button class="btn" data-ckp="' + pid + '"' + (lit ? ' disabled' : '') + '>去过' + esc(p.short) + '，但不选景点</button><button class="btn" data-close>关闭</button></div>' +
+    '<p class="muted small">“现场打卡”会请求一次定位，只用来判断你此刻在不在' + esc(p.short) + '，坐标不会保存。</p>');
+}
+function doCheckin(item, geo){
+  needId(function(){
+    function queue(){item.ts = Math.floor(Date.now() / 1000); S.pending.push(item); savePending(); closeSheet(); toast('已存在本机，联网后同步'); render()}
+    function run(lat, lng){
+      var body = Object.assign({}, item); if (lat != null) {body.lat = lat; body.lng = lng}
+      if (!S.B || S.offline || !S.tok) return queue();
+      api('checkin', body).then(function(r){closeSheet(); toast(r.dup ? '已经打过卡了' : (r.live ? '📍 现场章 get！' : '盖章成功 ✅') + (r.first_prov ? ' 新点亮一个省！' : '')); loadMe()})
+        .catch(function(e){if (/离线/.test(e.message)) queue(); else toast(e.message)});
+    }
+    if (geo) {if (!navigator.geolocation) return toast('这个浏览器不支持定位'); toast('正在定位…');
+      navigator.geolocation.getCurrentPosition(function(p){run(p.coords.latitude, p.coords.longitude)}, function(){toast('没拿到定位，改成普通打卡'); run()}, {timeout: 10000, maximumAge: 600000})}
+    else run();
+  });
+}
+document.addEventListener('click', function(e){
+  var t = e.target.closest('[data-ck],[data-live],[data-ckp],[data-p],[data-go],[data-u]'); if (!t) return;
+  if (t.dataset.ck) doCheckin({spot: t.dataset.ck}); else if (t.dataset.live) doCheckin({spot: t.dataset.live}, true);
+  else if (t.dataset.ckp) doCheckin({prov: t.dataset.ckp});
+  else if (t.dataset.p) {if (!t.closest('.cmpmap') && !t.closest('.inset')) provSheet(t.dataset.p)}
+  else if (t.dataset.go) go(t.dataset.go); else if (t.dataset.u) userSheet(t.dataset.u);
+});
+function go(t){S.tab = t; $$('#tabs button').forEach(function(b){b.classList.toggle('on', b.dataset.t === t)}); render(); scrollTo(0, 0)}
+$('#tabs').onclick = function(e){var b = e.target.closest('button'); if (b) go(b.dataset.t)};
+$('#mebtn').onclick = function(){S.tok || S.local ? go('me') : needId(render)};
+$('#bell').onclick = function(){needId(function(){api('notes?read=1').then(function(r){$('#unread').classList.add('hidden');
+  sheet('<h2>通知</h2>' + (r.items.map(function(n){var d = n.data, f = d.from || {}, who = esc(f.avatar || '') + ' ' + esc(f.nick || '');
+    var txt = {friend_req: who + ' 想加你为好友 <button class="btn sm pri" data-acc="' + esc(f.code) + '">同意</button> <button class="btn sm" data-rej="' + esc(f.code) + '">忽略</button>',
+      friend_ok: who + ' 通过了你的好友请求', like: who + ' 给你的动态点了 ' + esc(d.emoji), comment: who + ' 评论：' + esc(d.text),
+      room_invite: who + ' 邀请你' + (d.mode === 'duel' ? ' 1v1 对战' : '进猜景点房间') + ' <button class="btn sm pri" data-room="' + esc(d.code) + '">加入</button>',
+      team_join: who + ' 加入了小队「' + esc(d.team) + '」', team_goal: '🎉 小队「' + esc(d.team) + '」一起点亮了' + esc(d.prov) + '！', title: '🎖️ 获得称号「' + esc(d.title) + '」',
+      challenge: who + ' 挑战了你的题目：' + d.score + ' 分（你 ' + d.yours + ' 分）' + (d.beat ? '，被超过了！' : '')}[n.kind] || esc(n.kind);
+    return '<div class="feed-item small">' + txt + ' <span class="muted">' + ago(n.ts) + '</span></div>'}).join('') || '<p class="muted">还没有通知</p>'))}).catch(function(e){toast(e.message)})})};
+document.addEventListener('click', function(e){var t = e.target;
+  if (t.dataset.acc || t.dataset.rej) api('friend/respond', {code: t.dataset.acc || t.dataset.rej, accept: !!t.dataset.acc}).then(function(){toast(t.dataset.acc ? '已成为好友' : '已忽略'); t.parentNode.innerHTML = t.dataset.acc ? '✅ 已成为好友' : '已忽略'; loadMe()}).catch(function(x){toast(x.message)});
+  if (t.dataset.room) {closeSheet(); joinRoom(t.dataset.room)}
+});
+function render(){
+  var m = $('#main');
+  ({home: renderHome, lb: renderLb, arena: renderArena, feed: renderFeed, friends: renderFriends, me: renderMe}[S.tab] || renderHome)(m);
+}
+// ---------- home
+function renderHome(m){
+  var p = S.prof, st = p ? p.stats : {provs: 0, stamps: 0, live: 0, wins: 0}, lit = myLit(), nl = Object.keys(lit).length;
+  m.innerHTML = '<div class="grid2"><section class="panel"><div class="row" style="justify-content:space-between"><h2>我的足迹地图</h2><span class="muted small">点省份打卡 · 已点亮 <b style="color:var(--cyan)">' + nl + '</b>/34</span></div>' + mapSvg('mine', lit) +
+    '<div class="stats" style="margin-top:10px"><div class="stat"><b>' + nl + '</b><span>点亮省份</span></div><div class="stat"><b>' + (st.stamps || 0) + '</b><span>景点印章</span></div><div class="stat"><b>' + (st.live || 0) + '</b><span>📍现场章</span></div><div class="stat"><b>' + (st.wins || 0) + '</b><span>对战胜场</span></div></div>' +
+    (S.pending.length ? '<p class="small muted">⏳ 有 ' + S.pending.length + ' 条打卡等待同步</p>' : '') +
+    '<div class="row" style="margin-top:10px"><button class="btn pri" id="poster">🖼️ 生成足迹海报</button><button class="btn" data-go="arena">🎯 今日猜景点</button><button class="btn" data-go="friends">👥 邀请好友比足迹</button></div></section>' +
+    '<section><div class="panel"><div class="row" style="justify-content:space-between"><h2>🏆 排行榜</h2><button class="btn sm" data-go="lb">全部榜单 →</button></div><div id="homelb"><p class="muted">加载中…</p></div></div>' +
+    '<div class="panel"><h2>⚡ 正在进行</h2><div id="homerooms" class="small muted">…</div><div class="row" style="margin-top:8px"><button class="btn sm pri" id="hqroom">开一个猜景点房间</button><button class="btn sm" id="hqduel">1v1 随机对战</button></div></div></section></div>';
+  $('#poster').onclick = poster; $('#hqroom').onclick = function(){needId(function(){send({t: 'room.create'})})}; $('#hqduel').onclick = function(){needId(function(){send({t: 'duel.queue'})})};
+  homeLb();
+  if (S.B) api('overview').then(function(o){var h = $('#homerooms'); if (!h) return; h.innerHTML = '共 ' + o.users + ' 位旅人 · ' + o.stamps + ' 个印章 · ' + o.online + ' 人在线' + (o.rooms.length ? '<div class="pl" style="margin-top:8px">' + o.rooms.map(function(r){return '<span>房间 <b class="mono">' + r.code + '</b> · ' + r.players + ' 人 <button class="btn sm" data-room="' + r.code + '">加入</button></span>'}).join('') + '</div>' : '<p>现在没有等人的房间，开一个吧。</p>')}).catch(function(){});
+}
+function homeLb(){
+  var el = $('#homelb'); if (!el || !S.B) {if (el) el.innerHTML = '<p class="muted">离线中，排行榜暂不可用</p>'; return}
+  api('lb/home').then(function(r){
+    var T = {'prov|global|all': ['点亮省份 · 总榜', 'prov', 'global', 'all'], 'daily|global|day': ['今日猜景点', 'daily', 'global', 'day'], 'duel|global|week': ['本周对战胜场', 'duel', 'global', 'week']};
+    el.innerHTML = Object.keys(T).map(function(k){var b = r[k], t = T[k], u = UNIT[t[1]];
+      return '<div style="margin-bottom:10px"><div class="row" style="justify-content:space-between"><h3 style="margin:0">' + t[0] + '</h3><button class="btn sm" data-lbq="' + t.slice(1).join('|') + '">查看</button></div>' +
+        (b.rows.length ? b.rows.slice(0, 3).map(function(x){return '<div class="lbrow' + (S.me && x.user.id === S.me.id ? ' mine' : '') + '" data-u="' + x.user.code + '"><span class="rk">' + ['🥇', '🥈', '🥉'][x.rank - 1 > 2 ? 2 : x.rank - 1] + '</span><span class="av">' + x.user.avatar + '</span><span>' + esc(x.user.nick) + '</span><span class="v">' + x.value + u + '</span>' + arrow(x.delta) + '</div>'}).join('') : '<p class="muted small">还没人上榜，第一个就是你</p>') +
+        (b.me ? '<p class="small">我：第 <b>' + b.me.rank + '</b> 名' + (b.me.next ? '，再 ' + b.me.gap + u + ' 超过 ' + esc(b.me.next.nick) : b.me.rank === 1 ? '，领跑中 👑' : '') + '</p>' : '') + '</div>'}).join('');
+  }).catch(function(){el.innerHTML = '<p class="muted">排行榜加载失败</p>'});
+}
+document.addEventListener('click', function(e){var t = e.target.closest('[data-lbq]'); if (!t) return; var a = t.dataset.lbq.split('|'); S.lbq = {dim: a[0], scope: a[1], period: a[2]}; go('lb')});
+function arrow(d){return d == null ? '<span class="same small">新</span>' : d > 0 ? '<span class="up small">▲' + d + '</span>' : d < 0 ? '<span class="down small">▼' + (-d) + '</span>' : '<span class="same small">—</span>'}
+// ---------- leaderboards
+function renderLb(m){
+  var Q = S.lbq, provOpts = S.data ? S.data.provinces.filter(function(p){return p.spots}).map(function(p){return '<option value="prov:' + p.id + '"' + (Q.scope === 'prov:' + p.id ? ' selected' : '') + '>' + esc(p.short) + '</option>'}).join('') : '';
+  var seg = function(k, o){return '<div class="seg" data-k="' + k + '">' + Object.keys(o).map(function(x){return '<button data-v="' + x + '"' + (Q[k] === x ? ' class="on"' : '') + '>' + o[x] + '</button>'}).join('') + '</div>'};
+  m.innerHTML = '<section class="panel"><div class="row" style="justify-content:space-between"><h2>🏆 排行榜 <span class="chip small"><span class="dot"></span>实时</span></h2><button class="btn sm" id="rkcard">📤 分享我的排名</button></div>' +
+    seg('dim', DIMS) + seg('scope', {global: '🌏 全服', friends: '👥 好友', teams: '🚩 小队'}) +
+    '<div class="row"><select id="provsel"><option value="">📍 按省份看景点印章榜…</option>' + provOpts + '</select></div>' +
+    seg('period', {day: '今日', week: '本周', all: '总榜'}) + '<div id="lbbody"><p class="muted">加载中…</p></div></section>' +
+    '<p class="muted small">分数都由服务器计算：猜景点、对战成绩在服务器出题判分，打卡有频率限制。“现场印章”榜只统计定位核验过的打卡。排名箭头对比的是昨天的名次。</p>';
+  $$('.seg', m).forEach(function(s){s.onclick = function(e){var b = e.target.closest('button'); if (!b) return; Q[s.dataset.k] = b.dataset.v; if (s.dataset.k === 'scope') $('#provsel').value = ''; renderLb(m)}});
+  $('#provsel').onchange = function(){if (this.value) {Q.scope = this.value; if (Q.dim !== 'live') Q.dim = 'stamp'} else Q.scope = 'global'; renderLb(m)};
+  $('#rkcard').onclick = rankCard; loadLb();
+}
+function loadLb(quiet){
+  var Q = S.lbq, el = $('#lbbody'); if (!el) return; if (!S.B) {el.innerHTML = '<p class="muted">离线中，连上后自动刷新</p>'; return}
+  if (Q.scope === 'friends' && !S.tok) {el.innerHTML = '<p class="muted">先创建身份并添加好友，才能看好友榜。</p><button class="btn pri" id="lbid">起个昵称</button>'; $('#lbid').onclick = function(){needId(function(){loadLb()})}; return}
+  var prevRanks = loadLb.ranks || {};
+  api('lb?dim=' + Q.dim + '&scope=' + encodeURIComponent(Q.scope) + '&period=' + Q.period).then(function(r){
+    S.lbLast = r; var u = UNIT[Q.dim], rows = r.rows, top = rows.slice(0, 3), mine = r.me, ranks = {};
+    rows.forEach(function(x){ranks[x.user.id] = x.rank});
+    var pod = top.length ? '<div class="podium">' + [1, 0, 2].map(function(i){var x = top[i]; if (!x) return '<div></div>';
+      return '<div class="pod r' + (i + 1) + '" data-u="' + (x.user.team ? '' : x.user.code) + '">' + (i === 0 ? '<div class="crown">👑</div>' : '') + '<div class="av">' + x.user.avatar + '</div><div class="nm">' + esc(x.user.nick) + '</div><div class="v">' + x.value + '<small>' + u + '</small></div><div class="small muted">第 ' + x.rank + ' 名 ' + arrow(x.delta) + '</div></div>'}).join('') + '</div>' : '';
+    var list = rows.slice(3).map(function(x){var moved = quiet && prevRanks[x.user.id] && prevRanks[x.user.id] !== x.rank;
+      return '<div class="lbrow' + (S.me && x.user.id === S.me.id ? ' mine' : '') + '"' + (x.user.team ? '' : ' data-u="' + x.user.code + '"') + (moved ? ' style="animation:none;background:rgba(255,209,102,.15)"' : '') + '><span class="rk">' + x.rank + '</span><span class="av">' + x.user.avatar + '</span><span>' + esc(x.user.nick) + (x.user.team ? ' <span class="muted small">' + x.user.members + ' 人</span>' : '') + '</span><span class="v">' + x.value + u + '</span>' + arrow(x.delta) + '</div>'}).join('');
+    var bar = mine ? '<div class="mybar"><span style="font-size:26px">' + (Q.scope === 'teams' ? '🚩' : S.me.avatar) + '</span><div style="flex:1"><b>我的排名：第 ' + mine.rank + ' 名</b>' + (mine.of ? ' / ' + mine.of + ' 人' : '') + ' · ' + mine.value + u + ' ' + (mine.delta !== undefined ? arrow(mine.delta) : '') +
+      '<div class="small">' + (mine.next ? '距上一名 ' + esc(mine.next.avatar + ' ' + mine.next.nick) + ' 还差 <b style="color:var(--gold)">' + mine.gap + u + '</b>' : mine.rank === 1 ? '你是第一名 👑 守住它！' : '') + '</div></div><button class="btn sm pri" id="rkcard2">分享</button></div>'
+      : (S.tok ? '<div class="mybar"><span>🙂</span><div style="flex:1">你还没上这个榜。' + ({prov: '去地图点亮一个省', stamp: '去盖一个景点章', live: '到景点现场打卡', daily: '做一次今日猜景点', streak: '每天来做一次挑战', duel: '赢一场对战'}[Q.dim] || '') + '就能上榜。</div></div>' : '');
+    el.innerHTML = (rows.length ? pod + '<div>' + list + '</div>' : '<p class="muted center" style="padding:30px 0">这个榜还空着，快来抢第一 🚀</p>') + bar;
+    var b2 = $('#rkcard2'); if (b2) b2.onclick = rankCard; loadLb.ranks = ranks;
+  }).catch(function(e){el.innerHTML = '<p class="muted">' + esc(e.message) + '</p>'});
+}
+function rankCard(){
+  var r = S.lbLast, Q = S.lbq; if (!r || !r.me) return toast('上榜之后才能分享排名卡');
+  var c = document.createElement('canvas'); c.width = 900; c.height = 1200; var g = c.getContext('2d');
+  var gr = g.createLinearGradient(0, 0, 900, 1200); gr.addColorStop(0, '#0b1a3a'); gr.addColorStop(1, '#2a1550'); g.fillStyle = gr; g.fillRect(0, 0, 900, 1200);
+  g.textAlign = 'center'; g.fillStyle = '#5ce1ff'; g.font = 'bold 54px sans-serif'; g.fillText('打卡中国 · 排行榜', 450, 120);
+  var scope = Q.scope === 'global' ? '全服' : Q.scope === 'friends' ? '好友' : Q.scope === 'teams' ? '小队' : (provName(Q.scope.slice(5)) + '');
+  g.fillStyle = '#c9d6f0'; g.font = '36px sans-serif'; g.fillText(scope + ' · ' + DIMS[Q.dim] + ' · ' + {day: '今日', week: '本周', all: '总榜'}[Q.period], 450, 185);
+  g.font = '150px sans-serif'; g.fillText(Q.scope === 'teams' ? '🚩' : S.me.avatar, 450, 420); g.fillStyle = '#fff'; g.font = 'bold 56px sans-serif'; g.fillText(S.me.nick, 450, 510);
+  g.fillStyle = '#ffd166'; g.font = 'bold 210px sans-serif'; g.fillText('#' + r.me.rank, 450, 740);
+  g.fillStyle = '#e8f1ff'; g.font = '44px sans-serif'; g.fillText(r.me.value + UNIT[Q.dim] + (r.me.of ? ' · 共 ' + r.me.of + ' 人' : ''), 450, 820);
+  if (r.me.next) {g.fillStyle = '#ff7ad9'; g.font = '36px sans-serif'; g.fillText('再 ' + r.me.gap + UNIT[Q.dim] + ' 就能超过 ' + r.me.next.nick, 450, 890)}
+  g.fillStyle = '#8fa3c4'; g.font = '32px sans-serif'; g.fillText('来比比谁的足迹多 → 加我好友码 ' + S.me.code, 450, 1040); g.fillText(SHARE.replace(/^https?:\/\//, ''), 450, 1090);
+  showImg(c, 'daka-rank.png', '我的排名卡');
+}
+function provName(id){var p = S.data && S.data.provinces.filter(function(x){return x.id === id})[0]; return p ? p.short : id}
+function showImg(c, fn, title){var u = c.toDataURL('image/png');
+  sheet('<h2>' + title + '</h2><img src="' + u + '" style="width:100%;border-radius:14px" alt="' + title + '"><div class="row" style="margin-top:10px"><a class="btn pri" download="' + fn + '" href="' + u + '">保存图片</a><button class="btn" id="shimg">分享</button><button class="btn" data-close>关闭</button></div><p class="muted small">手机上也可以长按图片保存。</p>');
+  $('#shimg').onclick = function(){c.toBlob(function(b){var f = new File([b], fn, {type: 'image/png'}); if (navigator.canShare && navigator.canShare({files: [f]})) navigator.share({files: [f], title: '打卡中国'}).catch(function(){}); else toast('这个浏览器不支持直接分享，请保存图片')})};
+}
+// ---------- arena: daily, challenge links, rooms, duels
+function renderArena(m){
+  if (S.room && !S.room.closed) return roomView();
+  m.innerHTML = '<div class="grid2"><section class="panel"><h2>🎯 今日猜景点</h2><p class="muted small">每天 10 道题，全国同一套。看线索猜景点、看景点猜省份。答对 80 分 + 速度奖励，分数服务器判定，一天一次。</p><div class="row"><button class="btn pri" id="daily">开始今日挑战</button><button class="btn" id="mkch">📨 出一套题挑战好友</button></div><div id="dailyinfo" class="small" style="margin-top:8px"></div></section>' +
+    '<section class="panel"><h2>⚡ 抢答房间</h2><p class="muted small">最多 12 人，8 道题，每题 12 秒，越快分越高，第一个答对再 +50。</p><div class="row"><button class="btn pri" id="mkroom">开房间</button><input id="rcode" placeholder="5 位房间号" maxlength="5" inputmode="numeric" style="width:130px"><button class="btn" id="jroom">加入</button></div>' +
+    '<h2 style="margin-top:16px">🥊 1v1 对战</h2><p class="muted small">5 道题定胜负，赢了上“对战胜场”榜。</p><div class="row"><button class="btn pri" id="duelq">随机匹配</button><span class="muted small">或去好友页点“约战”</span></div></section></div>';
+  $('#daily').onclick = function(){needId(startDaily)}; $('#mkch').onclick = function(){needId(newChallenge)};
+  $('#mkroom').onclick = function(){needId(function(){send({t: 'room.create'})})}; $('#jroom').onclick = function(){needId(function(){joinRoom($('#rcode').value)})};
+  $('#duelq').onclick = function(){needId(function(){send({t: 'duel.queue'})})};
+  if (S.tok && S.B) api('daily').then(function(d){var i = $('#dailyinfo'); if (!i) return; i.innerHTML = d.done ? '✅ 今天已完成：<b>' + d.score + '</b> 分（答对 ' + d.correct + ' 题）· 连续 ' + d.streak + ' 天 <button class="btn sm" data-lbq="daily|global|day">看今日榜</button>' : (d.streak ? '🔥 已连续 ' + d.streak + ' 天，别断了' : '')}).catch(function(){});
+}
+function joinRoom(code){code = String(code || '').trim(); if (!/^\d{5}$/.test(code)) return toast('房间号是 5 位数字'); needId(function(){S.joinCode = code; send({t: 'room.join', code: code})})}
+function roomView(){
+  var m = $('#main'), R = S.room; if (S.tab !== 'arena') return;
+  if (R.waiting && !R.code) {m.innerHTML = '<section class="panel center"><h2>🥊 正在匹配对手…</h2><p class="muted">有人点“随机匹配”就会立刻开打。可以喊个朋友一起点。</p><button class="btn" id="cancelq">取消</button></section>'; $('#cancelq').onclick = function(){send({t: 'duel.cancel'}); S.room = null; render()}; return}
+  var me = S.me && S.me.id, pl = R.players || [];
+  var board = '<div class="list">' + pl.map(function(p, k){return '<div' + (p.id === me ? ' class="lbrow mine"' : '') + '><span class="rk mono">' + (k + 1) + '</span><span class="av">' + p.avatar + '</span><span style="flex:1">' + esc(p.nick) + (p.id === R.host ? ' <span class="badge">房主</span>' : '') + '</span>' + (p.last ? '<span class="up small">+' + p.last + '</span>' : '') + '<b class="mono">' + p.score + '</b></div>'}).join('') + '</div>';
+  var title = (R.mode === 'duel' ? '🥊 1v1 对战' : '⚡ 抢答房间') + ' <span class="code" style="font-size:18px">' + R.code + '</span>';
+  var body = '';
+  if (R.state === 'lobby') {
+    var link = SHARE + '#r' + R.code;
+    body = '<p>把房间号或链接发给朋友：</p><div class="row"><input readonly value="' + link + '" style="flex:1" id="rlink"><button class="btn sm" id="cplink">复制</button></div><div id="rqr" class="center" style="margin:10px 0"></div>' +
+      (R.mode === 'party' ? '<div class="row"><button class="btn pri" id="rstart"' + (R.host !== me ? ' disabled' : '') + '>' + (R.host === me ? '开始（' + pl.length + ' 人）' : '等房主开始…') + '</button><button class="btn" id="rinv">邀请好友</button><button class="btn" id="rleave">离开</button></div>' : '<p class="muted">等好友进来就自动开始…</p><button class="btn" id="rleave">离开</button>');
+  } else if (R.state === 'countdown' || (R.count && !R.q)) body = '<p class="center code" style="font-size:60px">' + (R.count || 3) + '</p><p class="center muted">准备…</p>';
+  else if (R.ended || R.state === 'end') {
+    var w = pl[0], iw = w && w.id === me;
+    body = '<h2 class="center">' + (pl.length > 1 && iw ? '🏆 你赢了！' : pl.length > 1 ? '🏁 ' + esc(w.nick) + ' 获胜' : '🏁 结束') + '</h2><div class="row" style="justify-content:center"><button class="btn pri" id="again">' + (R.mode === 'duel' ? '再来一局' : '再开一局') + '</button><button class="btn" data-lbq="duel|global|week">看对战榜</button><button class="btn" id="rleave">返回</button></div>';
+  } else if (R.q) {
+    var q = R.q, rv = R.rev;
+    body = '<div class="quiz"><div class="small muted">第 ' + (q.i + 1) + '/' + R.n + ' 题 · ' + (q.kind === 'spot' ? '看线索猜景点' : '猜省份') + ' · <span id="rans">' + (R.answeredN || 0) + ' 人已作答</span></div><div class="timer" style="margin-top:6px"><i id="rtm"></i></div><div class="prompt">' + esc(q.prompt) + '</div><div class="opts">' +
+      q.options.map(function(o, k){var c = rv ? (k === rv.answer ? 'ok' : k === R.pick ? 'no' : '') : k === R.pick ? 'sel' : ''; return '<button data-ra="' + k + '" class="' + c + '"' + (R.pick != null || rv ? ' disabled' : '') + '>' + esc(o) + '</button>'}).join('') + '</div>' +
+      (rv ? '<p>' + rv.spot.emoji + ' <b>' + esc(rv.spot.name) + '</b>（' + esc(rv.spot.prov) + '）' + (rv.first ? ' · ⚡ 最快答对：' + esc((pl.filter(function(p){return p.id === rv.first})[0] || {}).nick || '') : '') + '</p>' : '') + '</div>';
+  }
+  m.innerHTML = '<div class="grid2"><section class="panel"><h2>' + title + '</h2>' + body + '</section><section class="panel"><h2>实时比分</h2>' + board + '</section></div>';
+  if ($('#rqr') && window.qrcode) {var qr = qrcode(0, 'M'); qr.addData(SHARE + '#r' + R.code); qr.make(); $('#rqr').innerHTML = qr.createSvgTag({cellSize: 4, margin: 2})}
+  var cp = $('#cplink'); if (cp) cp.onclick = function(){copy($('#rlink').value)};
+  var st = $('#rstart'); if (st) st.onclick = function(){send({t: 'room.start', code: R.code})};
+  var iv = $('#rinv'); if (iv) iv.onclick = function(){inviteSheet(R.code)};
+  var lv = $('#rleave'); if (lv) lv.onclick = function(){send({t: 'room.leave'}); S.room = null; render()};
+  var ag = $('#again'); if (ag) ag.onclick = function(){send({t: 'room.leave'}); S.room = null; send(R.mode === 'duel' ? {t: 'duel.queue'} : {t: 'room.create'})};
+  $$('[data-ra]').forEach(function(b){b.onclick = function(){R.pick = +b.dataset.ra; send({t: 'room.answer', code: R.code, i: R.q.i, choice: R.pick}); roomView()}});
+  clearInterval(roomView.tm); if (R.q && !R.rev && $('#rtm')) roomView.tm = setInterval(function(){var t = $('#rtm'); if (!t) return clearInterval(roomView.tm); var left = Math.max(0, R.qend - Date.now()); t.style.width = (left / 120) + '%'; if (!left) clearInterval(roomView.tm)}, 200);
+}
+function inviteSheet(code){api('friends').then(function(r){sheet('<h2>邀请好友进房间</h2>' + (r.friends.length ? '<div class="list">' + r.friends.map(function(f){return '<div><span class="av">' + f.avatar + '</span><span style="flex:1">' + esc(f.nick) + (f.online ? ' <span class="dot"></span>' : '') + '</span><button class="btn sm pri" data-inv="' + f.code + '">邀请</button></div>'}).join('') + '</div>' : '<p class="muted">还没有好友，先把房间链接发出去吧。</p>') + '<button class="btn" data-close>关闭</button>');
+  $$('[data-inv]').forEach(function(b){b.onclick = function(){send({t: 'room.invite', code: code, user: b.dataset.inv}); b.disabled = true; b.textContent = '已邀请'}})}).catch(function(e){toast(e.message)})}
+function copy(t){(navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function(){toast('已复制')}, function(){prompt('复制这个链接：', t)})}
+// solo quiz (daily + friend challenge)
+function startDaily(){api('daily').then(function(d){if (d.done) {toast('今天已经挑战过了：' + d.score + ' 分'); return go('lb')} runQuiz(d.questions, '今日猜景点', function(ans){return api('daily', {answers: ans})}, null)}).catch(function(e){toast(e.message)})}
+function newChallenge(){api('challenge', {}).then(function(r){openChallenge(r.seed, true)}).catch(function(e){toast(e.message)})}
+function openChallenge(seed, mine){
+  if (!S.B) return toast('离线中，稍后再试');
+  api('challenge/' + seed).then(function(c){
+    var own = S.me && c.owner.id === S.me.id;
+    if (c.done || !c.questions) return showChallenge(c);
+    var intro = own ? '先自己做一遍，定下要别人超过的分数。' : esc(c.owner.avatar + ' ' + c.owner.nick) + ' 挑战你！' + (c.owner_score != null ? '要超过 <b style="color:var(--gold)">' + c.owner_score + '</b> 分。' : '');
+    sheet('<h2>📨 好友挑战</h2><p>' + intro + '</p><p class="muted small">10 道题，和对方题目完全一样，分数服务器判定，每人一次。</p><button class="btn pri" id="chgo">开始</button>');
+    $('#chgo').onclick = function(){closeSheet(); runQuiz(c.questions, '好友挑战', function(ans){return api('challenge/' + seed, {answers: ans})}, seed)};
+  }).catch(function(e){toast(e.message)});
+}
+function showChallenge(c){var link = SHARE + '#ch' + c.seed;
+  sheet('<h2>📨 挑战：' + esc(c.owner.nick) + ' 出的题</h2><div class="row"><input readonly value="' + link + '" style="flex:1" id="chl"><button class="btn sm" id="chcp">复制挑战链接</button></div><h3>成绩榜</h3><div class="list">' +
+    c.board.map(function(b, k){return '<div><span class="rk mono">' + (k + 1) + '</span><span class="av">' + b.user.avatar + '</span><span style="flex:1">' + esc(b.user.nick) + '</span><b class="mono">' + b.score + '</b></div>'}).join('') + '</div><button class="btn" data-close>关闭</button>');
+  $('#chcp').onclick = function(){copy(link)}}
+function runQuiz(qs, title, submit, seed){
+  S.tab = 'arena'; var i = 0, ans = {}, m = $('#main'), t0 = Date.now();
+  function show(){
+    if (i >= qs.length) return fin(); var q = qs[i];
+    m.innerHTML = '<section class="panel quiz"><h2>' + title + '</h2><div class="small muted">第 ' + (i + 1) + '/' + qs.length + ' 题 · ' + (q.kind === 'spot' ? '看线索猜景点' : '猜省份') + '</div><div class="prompt">' + esc(q.prompt) + '</div><div class="opts">' + q.options.map(function(o, k){return '<button data-qa="' + k + '">' + esc(o) + '</button>'}).join('') + '</div></section>';
+    $$('[data-qa]').forEach(function(b){b.onclick = function(){ans[q.i] = +b.dataset.qa; b.classList.add('sel'); i++; setTimeout(show, 180)}});
+  }
+  function fin(){m.innerHTML = '<section class="panel center"><h2>提交中…</h2></section>';
+    submit(ans).then(function(r){var right = r.answers.map(function(a, k){return '<div><span class="' + (ans[k] === a.answer ? 'up' : 'down') + '">' + (ans[k] === a.answer ? '✔' : '✘') + '</span> ' + esc(a.spot) + '</div>'}).join('');
+      m.innerHTML = '<section class="panel center"><h2>' + r.score + ' 分</h2><p>答对 ' + r.correct + '/' + qs.length + (r.streak ? ' · 🔥 连续 ' + r.streak + ' 天' : '') + (r.owner_score != null && seed ? ' · 对方 ' + r.owner_score + ' 分 ' + (r.score > r.owner_score ? '🎉 你赢了' : '再接再厉') : '') + '</p>' +
+        '<div class="row" style="justify-content:center"><button class="btn pri" id="qx1">' + (seed ? '发给更多人' : '出套题挑战好友') + '</button><button class="btn" data-lbq="daily|' + (S.prof && S.prof.stats.friends ? 'friends' : 'global') + '|day">看排行榜</button><button class="btn" data-go="arena">返回</button></div><div class="list small" style="text-align:left;margin-top:12px">' + right + '</div></section>';
+      $('#qx1').onclick = function(){seed ? openChallenge(seed) : newChallenge()}; loadMe();
+    }).catch(function(e){m.innerHTML = '<section class="panel center"><p>' + esc(e.message) + '</p><button class="btn" data-go="arena">返回</button></section>'});
+  }
+  show();
+}
+// ---------- feed
+function evText(e){var d = e.data;
+  return {lit: '点亮了 <b>' + esc(d.name) + '</b>，已点亮 ' + d.n + ' 个省份 ✨', stamp: '在' + esc(d.prov) + '盖了 ' + d.emoji + ' <b>' + esc(d.name) + '</b> 章' + (d.live ? ' <span class="badge">📍 现场</span>' : ''),
+    title: '获得称号 <span class="badge">🎖️ ' + esc(d.title) + '</span> <span class="muted small">' + esc(d.desc) + '</span>', daily: '完成今日猜景点：<b>' + d.score + '</b> 分（' + d.correct + '/' + d.n + '）' + (d.streak > 1 ? ' 🔥 连续 ' + d.streak + ' 天' : ''),
+    win: '赢下一场' + (d.mode === 'duel' ? ' 1v1 对战' : ' ' + d.players + ' 人抢答') + '（' + d.score + ' 分' + (d.vs ? '，对手 ' + esc(d.vs) : '') + '）🏆', team: '和小队「' + esc(d.team) + '」' + d.members + ' 人一起点亮了 <b>' + esc(d.prov) + '</b> 全部景点 🚩'}[e.kind] || esc(e.kind)}
+function feedItem(e){
+  return '<div class="feed-item" data-ev="' + e.id + '"><div class="hd"><span class="av" data-u="' + e.user.code + '" style="cursor:pointer">' + e.user.avatar + '</span><div style="flex:1"><b>' + esc(e.user.nick) + '</b> <span class="muted small">' + ago(e.ts) + '</span><div>' + evText(e) + '</div></div>' +
+    (e.mine ? '<button class="btn sm" data-del="' + e.id + '" title="删除">🗑</button>' : '<button class="btn sm" data-rep="event:' + e.id + '" title="举报">⚑</button>') + '</div>' +
+    '<div class="reacts">' + EMO.map(function(x){var r = e.reactions.filter(function(y){return y.emoji === x})[0]; return '<button data-re="' + e.id + '|' + x + '"' + (r && r.mine ? ' class="mine"' : '') + '>' + x + (r ? ' ' + r.n : '') + '</button>'}).join('') + '</div>' +
+    '<div class="cmts">' + e.comments.map(function(c){return '<p>' + c.avatar + ' <b>' + esc(c.nick) + '</b>：' + esc(c.text) + ' ' + (c.mine || e.mine ? '<a href="javascript:" data-dc="' + c.id + '" class="small muted">删除</a>' : '<a href="javascript:" data-rep="comment:' + c.id + '" class="small muted">举报</a>') + '</p>'}).join('') +
+    '<div class="row"><input data-cin="' + e.id + '" maxlength="60" placeholder="说点什么（60 字内）" style="flex:1;padding:5px 10px"><button class="btn sm" data-cs="' + e.id + '">发送</button></div></div></div>';
+}
+function renderFeed(m){
+  m.innerHTML = '<section class="panel"><div class="row" style="justify-content:space-between"><h2>💬 动态</h2><div class="seg" id="fsc"><button data-v="all"' + (S.feedScope === 'all' ? ' class="on"' : '') + '>全部</button><button data-v="friends"' + (S.feedScope === 'friends' ? ' class="on"' : '') + '>好友</button></div></div><div id="feedl"><p class="muted">加载中…</p></div>' +
+    '<p class="muted small">评论会自动过滤脏话、广告和联系方式；被 3 人举报的内容会自动隐藏。</p></section>';
+  $('#fsc').onclick = function(e){var b = e.target.closest('button'); if (!b) return; if (b.dataset.v === 'friends' && !S.tok) return needId(); S.feedScope = b.dataset.v; renderFeed(m)};
+  loadFeed();
+}
+function loadFeed(){var el = $('#feedl'); if (!el) return; if (!S.B) {el.innerHTML = '<p class="muted">离线中</p>'; return}
+  api('feed?scope=' + S.feedScope).then(function(r){el.innerHTML = r.items.map(feedItem).join('') || '<p class="muted center">还没有动态，去打个卡吧</p>'}).catch(function(e){el.innerHTML = '<p class="muted">' + esc(e.message) + '</p>'})}
+document.addEventListener('click', function(e){var t = e.target.closest('[data-re],[data-cs],[data-rep],[data-del],[data-dc]'); if (!t) return;
+  needId(function(){
+    var d = t.dataset, swap = function(r){var o = t.closest('.feed-item'); if (o) o.outerHTML = feedItem(r)};
+    if (d.re) {var a = d.re.split('|'); api('react', {event: +a[0], emoji: a[1]}).then(swap).catch(function(x){toast(x.message)})}
+    if (d.cs) {var inp = $('[data-cin="' + d.cs + '"]'); if (!inp.value.trim()) return; api('comment', {event: +d.cs, text: inp.value}).then(swap).catch(function(x){toast(x.message)})}
+    if (d.rep) {var b = d.rep.split(':'); if (confirm('举报这条内容？')) api('report', {kind: b[0], id: +b[1]}).then(function(r){toast(r.msg)}).catch(function(x){toast(x.message)})}
+    if (d.del) {if (confirm('删除这条动态？')) api('delete', {kind: 'event', id: +d.del}).then(function(){t.closest('.feed-item').remove()})}
+    if (d.dc) api('delete', {kind: 'comment', id: +d.dc}).then(function(){t.closest('p').remove()});
+  });
+});
+document.addEventListener('keydown', function(e){if (e.key === 'Enter' && e.target.dataset && e.target.dataset.cin) {var b = $('[data-cs="' + e.target.dataset.cin + '"]'); if (b) b.click()}});
+// ---------- friends
+function renderFriends(m){
+  if (!S.tok) {m.innerHTML = '<section class="panel center"><h2>👥 好友</h2><p class="muted">起个昵称后会得到一个好友码，把链接或二维码发给朋友，就能互相看足迹、比排名、约战。</p><button class="btn pri" id="fid">起个昵称</button></section>'; $('#fid').onclick = function(){needId(render)}; return}
+  var link = SHARE + '#f' + S.me.code;
+  m.innerHTML = '<div class="grid2"><section class="panel"><h2>好友列表</h2><div id="frl"><p class="muted">加载中…</p></div></section><section class="panel"><h2>加好友</h2><p>我的好友码 <span class="code">' + S.me.code + '</span></p>' +
+    '<div class="row"><input readonly id="flink" value="' + link + '" style="flex:1"><button class="btn sm" id="fcp">复制邀请链接</button></div><div id="fqr" class="center" style="margin:12px 0"></div>' +
+    '<div class="row"><input id="fcode" placeholder="输入对方好友码" maxlength="6" style="text-transform:uppercase;flex:1"><button class="btn pri" id="fadd">发送请求</button></div></section></div>';
+  if (window.qrcode) {var qr = qrcode(0, 'M'); qr.addData(link); qr.make(); $('#fqr').innerHTML = qr.createSvgTag({cellSize: 4, margin: 2})}
+  $('#fcp').onclick = function(){copy(link)};
+  $('#fadd').onclick = function(){addFriend($('#fcode').value)};
+  api('friends').then(function(r){var el = $('#frl'); if (!el) return;
+    el.innerHTML = (r.pending.length ? '<h3>待处理请求</h3><div class="list">' + r.pending.map(function(p){return '<div><span class="av">' + p.avatar + '</span><span style="flex:1">' + esc(p.nick) + '</span><button class="btn sm pri" data-acc="' + p.code + '">同意</button><button class="btn sm" data-rej="' + p.code + '">忽略</button></div>'}).join('') + '</div>' : '') +
+      (r.friends.length ? '<div class="list">' + r.friends.map(function(f){return '<div><span class="av" data-u="' + f.code + '" style="cursor:pointer">' + f.avatar + '</span><span style="flex:1" data-u="' + f.code + '"><b>' + esc(f.nick) + '</b> ' + (f.online ? '<span class="dot"></span>' : '') + '<br><span class="small muted">' + f.provs + ' 省 · ' + f.stamps + ' 章 · ' + f.wins + ' 胜</span></span><button class="btn sm" data-u="' + f.code + '">比足迹</button><button class="btn sm pri" data-duel="' + f.code + '">约战</button></div>'}).join('') + '</div>' : '<p class="muted">还没有好友。把左边的链接发出去，对方打开就会收到请求。</p>') +
+      (r.sent.length ? '<p class="small muted">已发送：' + r.sent.map(function(s){return s.avatar + esc(s.nick)}).join('、') + '</p>' : '') +
+      (r.friends.length ? '<button class="btn sm" data-lbq="prov|friends|all" style="margin-top:8px">🏆 好友排行榜</button>' : '');
+  }).catch(function(e){toast(e.message)});
+}
+function addFriend(code){code = String(code || '').trim().toUpperCase(); if (!code) return; needId(function(){api('friend/request', {code: code}).then(function(r){toast(r.status === 'ok' ? '已经是好友了 🎉' : '请求已发出'); if (S.tab === 'friends') render()}).catch(function(e){toast(e.message)})})}
+document.addEventListener('click', function(e){var t = e.target.closest('[data-duel]'); if (!t) return; send({t: 'duel.friend', user: t.dataset.duel}); toast('约战邀请已发出，等对方加入'); S.room = {waiting: true}});
+function userSheet(code){
+  if (!code || !S.B) return; api('user/' + code).then(function(p){
+    var u = p.user, self = S.me && u.id === S.me.id, c = p.compare, a = {}, b = {};
+    if (c) {c.both.concat(c.only_me).forEach(function(x){a[x] = 1}); c.both.concat(c.only_them).forEach(function(x){b[x] = 1})} else p.lit.forEach(function(x){a[x] = 1});
+    var names = function(l){return l.map(provName).join('、')};
+    sheet('<div class="row"><span style="font-size:44px">' + u.avatar + '</span><div><h2 style="margin:0">' + esc(u.nick) + '</h2><span class="muted small">好友码 ' + u.code + (p.team ? ' · 🚩 ' + esc(p.team.name) : '') + '</span></div></div>' +
+      '<div class="pl" style="margin:8px 0">' + p.titles.map(function(t){return '<span class="badge">🎖️ ' + esc(t.name) + '</span>'}).join('') + '</div>' +
+      (c ? mapSvg('cmp', a, b) + '<p class="small"><span style="color:var(--green)">■</span> 你们都去过：' + (names(c.both) || '还没有') + '<br><span style="color:var(--cyan)">■</span> 只有你去过：' + (names(c.only_me) || '—') + '<br><span style="color:var(--pink)">■</span> 只有 TA 去过：' + (names(c.only_them) || '—') + '</p>' : mapSvg('cmp', a, {})) +
+      '<div class="stats"><div class="stat"><b>' + p.stats.provs + '</b><span>省份</span></div><div class="stat"><b>' + p.stats.stamps + '</b><span>印章</span></div><div class="stat"><b>' + p.stats.wins + '</b><span>胜场</span></div><div class="stat"><b>' + p.stats.streak + '</b><span>连续天</span></div></div>' +
+      '<div class="row" style="margin-top:12px">' + (self ? '' : p.relation === 'friend' ? '<button class="btn pri" data-duel="' + u.code + '">约战</button><button class="btn" id="unf">删除好友</button>' : p.relation === 'sent' ? '<span class="muted">已发送好友请求</span>' : '<button class="btn pri" id="addf">' + (p.relation === 'received' ? '同意好友请求' : '加为好友') + '</button>') + '<button class="btn" data-close>关闭</button></div>');
+    var af = $('#addf'); if (af) af.onclick = function(){closeSheet(); addFriend(u.code)};
+    var uf = $('#unf'); if (uf) uf.onclick = function(){if (confirm('删除这位好友？')) api('friend/remove', {code: u.code}).then(function(){closeSheet(); render()})};
+  }).catch(function(e){toast(e.message)});
+}
+// ---------- me: profile, titles, stamp book, team, poster
+function renderMe(m){
+  if (!S.tok) {m.innerHTML = '<section class="panel center"><h2>🎖️ 我的</h2>' + (S.local ? '<p>离线身份：' + S.local.avatar + ' ' + esc(S.local.nick) + '，联网后自动创建。</p>' : '<p class="muted">起个昵称就能开始收集印章和称号。</p><button class="btn pri" id="mid">起个昵称</button>') + '</section>'; var b = $('#mid'); if (b) b.onclick = function(){needId(render)}; return}
+  var p = S.prof; if (!p) {m.innerHTML = '<p class="muted">加载中…</p>'; return}
+  var st = myStamps(), have = {}; p.titles.forEach(function(t){have[t.name] = 1});
+  var ALL = [['初出茅庐', '点亮第 1 个省份'], ['小有足迹', '点亮 5 个省份'], ['行者', '点亮 10 个省份'], ['旅行家', '点亮 20 个省份'], ['走遍中国', '点亮全部 34 个省级行政区'], ['集章达人', '收集 30 枚景点印章'], ['实地派', '3 次现场打卡'], ['首胜', '赢下第一场对战'], ['常胜将军', '赢下 10 场对战'], ['七日不断', '每日挑战连续 7 天'], ['猜景点高手', '每日挑战单次 900 分以上'], ['社交达人', '有 5 位好友']];
+  m.innerHTML = '<div class="grid2"><section class="panel"><div class="row"><span style="font-size:48px">' + S.me.avatar + '</span><div style="flex:1"><h2 style="margin:0">' + esc(S.me.nick) + '</h2><span class="muted small">好友码 ' + S.me.code + '</span></div><button class="btn sm" id="edit">编辑</button></div>' +
+    '<h3>称号 ' + p.titles.length + '/' + ALL.length + '</h3><div class="pl">' + ALL.map(function(t){return '<span class="badge"' + (have[t[0]] ? '' : ' style="opacity:.35"') + ' title="' + t[1] + '">' + (have[t[0]] ? '🎖️' : '🔒') + ' ' + t[0] + '</span>'}).join('') + '</div>' +
+    '<h3 style="margin-top:14px">印章册 ' + Object.keys(st).filter(function(k){return k.indexOf('P:') !== 0}).length + '/102</h3><div class="stampgrid">' + S.data.provinces.filter(function(x){return x.spots}).map(function(pv){return pv.spots.map(function(s){var g = st[s.id]; return '<div class="stamp' + (g ? ' got' : '') + (g && g.live ? ' live' : '') + '" data-p="' + pv.id + '"><span class="e">' + s.emoji + '</span>' + esc(s.name) + '<br><span class="small">' + esc(pv.short) + (g && g.live ? ' 📍' : '') + '</span></div>'}).join('')}).join('') + '</div></section>' +
+    '<section><div class="panel" id="teamp"><h2>🚩 小队</h2><p class="muted">加载中…</p></div><div class="panel"><h2>分享</h2><div class="row"><button class="btn pri" id="poster2">🖼️ 足迹海报</button><button class="btn" data-lbq="prov|global|all">🏆 我的排名</button></div></div>' +
+    '<div class="panel"><h2>账号</h2><p class="small muted">身份只存在这台设备上（以及你保存的恢复码）。我们不保存真实姓名、手机号、IP 或定位坐标。</p><button class="btn sm" id="logout">退出此设备</button></div></section></div>';
+  $('#poster2').onclick = poster;
+  $('#edit').onclick = function(){var pick = S.me.avatar;
+    sheet('<h2>编辑资料</h2><p><input id="enk" maxlength="12" value="' + esc(S.me.nick) + '" style="width:100%"></p><div class="avpick" id="eav">' + AV.map(function(a){return '<button data-a="' + a + '"' + (a === pick ? ' class="on"' : '') + '>' + a + '</button>'}).join('') + '</div><p><button class="btn pri" id="esave">保存</button></p>');
+    $('#eav').onclick = function(e){var b = e.target.closest('button'); if (!b) return; $$('#eav button').forEach(function(x){x.classList.remove('on')}); b.classList.add('on'); pick = b.dataset.a};
+    $('#esave').onclick = function(){api('profile', {nick: $('#enk').value, avatar: pick}).then(function(){closeSheet(); loadMe()}).catch(function(e){toast(e.message)})}};
+  $('#logout').onclick = function(){if (confirm('退出后需要恢复码才能找回这个身份，确定？')) {localStorage.removeItem('dk_tok'); localStorage.removeItem('dk_prof'); S.tok = null; S.me = null; S.prof = null; $('#mebtn').textContent = '🙂 起个昵称'; connect(); render()}};
+  teamPanel();
+}
+function teamPanel(){var el = $('#teamp'); if (!el) return; var t = S.prof.team;
+  if (!t) {var opts = S.data.provinces.filter(function(x){return x.spots}).map(function(p){return '<option value="' + p.id + '">' + esc(p.short) + '</option>'}).join('');
+    el.innerHTML = '<h2>🚩 小队</h2><p class="muted small">最多 8 人，一起把一个省的 3 个景点章全部集齐，就算“一起点亮”。小队也有自己的排行榜。</p><div class="row"><input id="tnm" maxlength="10" placeholder="队名" style="width:120px"><select id="tpv">' + opts + '</select><button class="btn pri" id="tmk">创建</button></div><div class="row" style="margin-top:8px"><input id="tcd" maxlength="5" placeholder="小队码" style="width:120px;text-transform:uppercase"><button class="btn" id="tjn">加入</button></div>';
+    $('#tmk').onclick = function(){api('team/create', {name: $('#tnm').value, prov: $('#tpv').value}).then(function(){loadMe()}).catch(function(e){toast(e.message)})};
+    $('#tjn').onclick = function(){joinTeam($('#tcd').value)}; return}
+  api('team/' + t.code).then(function(tp){var link = SHARE + '#t' + tp.code, pv = S.data.provinces.filter(function(x){return x.id === tp.prov})[0];
+    el.innerHTML = '<h2>🚩 ' + esc(tp.name) + ' <span class="muted small">小队码 ' + tp.code + '</span></h2><p>目标：一起点亮 <b>' + esc(tp.prov_name) + '</b> ' + (tp.done ? '✅ 已完成！' : '（' + tp.got.length + '/' + tp.goal.length + '）') + '</p><div class="timer"><i style="width:' + (100 * tp.got.length / tp.goal.length) + '%"></i></div>' +
+      '<div class="pl" style="margin:8px 0">' + pv.spots.map(function(s){return '<span' + (tp.got.indexOf(s.id) >= 0 ? ' style="border-color:var(--green)"' : ' style="opacity:.5"') + '>' + s.emoji + ' ' + esc(s.name) + '</span>'}).join('') + '</div>' +
+      '<div class="list">' + tp.members.map(function(mm){return '<div data-u="' + mm.code + '"><span class="av">' + mm.avatar + '</span><span style="flex:1">' + esc(mm.nick) + (mm.id === tp.owner ? ' <span class="badge">队长</span>' : '') + '</span><span class="small muted">' + mm.spots.length + ' 章</span></div>'}).join('') + '</div>' +
+      '<p class="small">小队合计点亮 ' + tp.provs + ' 个省</p><div class="row"><button class="btn sm" id="tcp">复制入队链接</button><button class="btn sm" data-lbq="prov|teams|all">小队榜</button><button class="btn sm" id="tlv">退出小队</button></div>';
+    $('#tcp').onclick = function(){copy(link)}; $('#tlv').onclick = function(){if (confirm('退出小队？')) api('team/leave', {}).then(function(){loadMe()})};
+  }).catch(function(){})}
+function joinTeam(code){needId(function(){api('team/join', {code: String(code || '').trim()}).then(function(t){toast('已加入小队「' + t.name + '」'); loadMe().then(function(){go('me')})}).catch(function(e){toast(e.message)})})}
+function poster(){
+  var lit = myLit(), n = Object.keys(lit).length, D = S.data, st = S.prof ? S.prof.stats : {stamps: 0, live: 0};
+  var c = document.createElement('canvas'); c.width = 1080; c.height = 1440; var g = c.getContext('2d');
+  var gr = g.createLinearGradient(0, 0, 1080, 1440); gr.addColorStop(0, '#061226'); gr.addColorStop(1, '#1d1240'); g.fillStyle = gr; g.fillRect(0, 0, 1080, 1440);
+  g.fillStyle = '#5ce1ff'; g.font = 'bold 72px sans-serif'; g.textAlign = 'left'; g.fillText('我的打卡中国', 70, 130);
+  g.fillStyle = '#c9d6f0'; g.font = '40px sans-serif'; g.fillText((S.me ? S.me.avatar + ' ' + S.me.nick : (S.local ? S.local.nick : '旅人')) + ' · 点亮 ' + n + '/34 个省级行政区', 70, 200);
+  var vb = D.viewBox.split(' ').map(Number), sc = 940 / vb[2], ox = 70, oy = 260;
+  g.save(); g.translate(ox, oy); g.scale(sc, sc); g.translate(-vb[0], -vb[1]); g.lineWidth = 0.6;
+  D.provinces.forEach(function(p){var pa = new Path2D(p.path); if (p.id === 'jd') {g.strokeStyle = 'rgba(92,225,255,.7)'; g.stroke(pa); return} g.fillStyle = lit[p.id] ? '#5ce1ff' : '#17294a'; g.fill(pa); g.strokeStyle = 'rgba(160,220,255,.6)'; g.stroke(pa)});
+  g.restore();
+  g.fillStyle = '#fff'; g.font = 'bold 120px sans-serif'; g.fillText(String(n), 70, 1080); g.font = '40px sans-serif'; g.fillStyle = '#8fa3c4'; g.fillText('个省份', 70 + g.measureText(String(n)).width * 3 + 20, 1080);
+  g.fillStyle = '#ff7ad9'; g.font = 'bold 54px sans-serif'; g.fillText(st.stamps + ' 枚景点章 · ' + st.live + ' 枚现场章', 70, 1170);
+  if (S.prof && S.prof.titles.length) {g.fillStyle = '#ffd166'; g.font = '40px sans-serif'; g.fillText('🎖️ ' + S.prof.titles.slice(-3).map(function(t){return t.name}).join(' · '), 70, 1240)}
+  g.fillStyle = '#8fa3c4'; g.font = '34px sans-serif'; g.fillText('来比比谁去过的地方多' + (S.me ? ' · 好友码 ' + S.me.code : ''), 70, 1330); g.fillText(SHARE.replace(/^https?:\/\//, ''), 70, 1380);
+  if (S.me && window.qrcode) {var qr = qrcode(0, 'M'); qr.addData(SHARE + '#f' + S.me.code); qr.make(); var k = qr.getModuleCount(), cs = Math.floor(200 / k); g.fillStyle = '#fff'; g.fillRect(830, 1150, k * cs + 20, k * cs + 20); g.fillStyle = '#000';
+    for (var r = 0; r < k; r++) for (var q = 0; q < k; q++) if (qr.isDark(r, q)) g.fillRect(840 + q * cs, 1160 + r * cs, cs, cs)}
+  showImg(c, 'daka-footprint.png', '足迹海报');
+}
+// ---------- deep links
+function deep(){
+  var h = decodeURIComponent(location.hash.slice(1)); if (!h) return; history.replaceState(null, '', location.pathname + location.search);
+  var k = h[0], v = h.slice(1);
+  if (k === 'f') {if (S.me && S.me.code === v.toUpperCase()) return; userSheet(v); }
+  else if (k === 'u') userSheet(v);
+  else if (k === 'r') joinRoom(v);
+  else if (k === 'c' && h[1] === 'h') needId(function(){openChallenge(h.slice(2))});
+  else if (k === 't') joinTeam(v);
+  else if (h.indexOf('lb') === 0) go('lb');
+}
+// ---------- boot
+function boot(){
+  var cached = localStorage.getItem('dk_prof'); if (cached && S.tok) try {S.prof = JSON.parse(cached); S.me = S.prof.user; $('#mebtn').textContent = S.me.avatar + ' ' + S.me.nick} catch (e) {}
+  var dataUrl = (window.DAKA_STATIC || 'static/') + 'daka_data.json';
+  fetch(dataUrl).then(function(r){return r.json()}).then(function(d){S.data = d; render()}).catch(function(){$('#main').innerHTML = '<p class="muted">地图数据加载失败，请刷新</p>'});
+  boot.retry();
+}
+boot.retry = function(){
+  base().then(function(b){S.B = b; setOffline(false); connect(); return loadMe()}).then(function(){flush(); render(); if (!boot.dl) {boot.dl = 1; deep()}})
+    .catch(function(){setOffline(true); if (S.data) render(); clearTimeout(boot.t); boot.t = setTimeout(boot.retry, 20000)});
+};
+window.addEventListener('online', function(){boot.retry()});
+window.addEventListener('hashchange', deep);
+boot();
+})();
+</script>
+</body>
+</html>
