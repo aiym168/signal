@@ -96,10 +96,9 @@ var AV = Array.from('🐼🦊🐯🐨🐸🐵🦁🐰🐱🐶🐻🐧🦄🐲�
 var EMO = ['👍','❤️','😂','😮','🔥','👏'];
 var DIMS = {prov: '点亮省份', stamp: '景点印章', live: '现场印章', daily: '猜景点得分', streak: '连续挑战', duel: '对战胜场'};
 var UNIT = {prov: '省', stamp: '枚', live: '枚', daily: '分', streak: '天', duel: '胜'};
-var SHARE = /^(127\.|localhost)/.test(location.hostname) ? location.origin + location.pathname : 'https://aiym168.github.io/signal/daka/';  // stable link for sharing (tunnel addresses change)
+var SHARE = /^(127\.|localhost)|is-my\.app$|devis\.im$/.test(location.hostname) || /^\/daka\//.test(location.pathname) && /github\.io$/.test(location.hostname) ? location.origin + location.pathname : 'https://aiym168.github.io/daka/';  // stable link for sharing (tunnel addresses change; github.io/daka/ forwards to the custom domain once it is live)
 // ---------- backend discovery (served by the station itself, or from the always-on page that looks up the station's current address)
 function base(){
-  if (!/^(127\.|localhost)/.test(location.hostname)) fetch('https://aiym168.github.io/api/live.json?t=' + Date.now(), {cache: 'no-store'}).then(function(r){return r.json()}).then(function(d){if (d.domain) SHARE = d.domain.replace(/\/?$/, '/') + 'daka/'}).catch(function(){});
   if (!window.DAKA_REMOTE) return fetch(location.origin + '/daka/api/overview', {cache: 'no-store'}).then(function(r){if (!r.ok) throw 0; return location.origin + '/daka'});
   return fetch('https://aiym168.github.io/api/live.json?t=' + Date.now(), {cache: 'no-store'}).then(function(r){return r.json()}).then(function(d){
     var U = d.urls || [], i = 0;
