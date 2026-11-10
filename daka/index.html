@@ -124,9 +124,9 @@ function base(){
         .catch(function(){}).then(function(){clearTimeout(t); lists--; fin()});
     }
     try {probe(localStorage.getItem('dk_be'))} catch (e) {}
-    probe('https://aiym.dpdns.org');  // fixed address, tried first
+    probe('https://aiym.dpdns.org');  // fixed address, raced with the others
     if (/is-my\.app$|devis\.im$|github\.io$/.test(location.hostname)) list(new URL('live.json', location.href).href);
-    list('https://www.aiym.dpdns.org/api/live.json');
+    list('https://aiym168.github.io/api/live.json');
   });
 }
 function api(p, body){

@@ -163,7 +163,7 @@ if(!window.STATION_REMOTE)stationBoot('');
  function list(src){lists++;fetch(src+'?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json()}).then(function(d){(d.urls||[]).forEach(probe)}).catch(function(){}).then(function(){lists--;fin();});}
  try{probe(localStorage.getItem(K))}catch(e){}
  probe('https://aiym.dpdns.org');
- list(new URL('live.json',location.href).href);list('https://www.aiym.dpdns.org/api/live.json');
+ list(new URL('live.json',location.href).href);list('https://aiym168.github.io/api/live.json');
 })();
 </script>
 </body></html>
