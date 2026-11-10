@@ -4,7 +4,7 @@
 内容全部来自 [AI大模型免费资源导航](https://aiym168.github.io/) 已收录的公开数据，不编造活动。
 
 这个仓库只放网页本身（GitHub Pages）；直播流和雷达数据由信号站后端实时提供，
-网页通过 <https://aiym168.github.io/api/live.json> 找到后端当前地址。
+网页通过 <https://www.aiym.dpdns.org/api/live.json> 找到后端当前地址。
 
 - 入口：https://yangmao.is-my.app/ · https://aiym168.github.io/live/
 - 打卡中国（足迹地图 + 好友 + 抢答 + 排行榜）：https://daka.is-my.app/

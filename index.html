@@ -162,7 +162,8 @@ if(!window.STATION_REMOTE)stationBoot('');
   fetch(u+'/healthz',{cache:'no-store',signal:c&&c.signal}).then(function(r){clearTimeout(t);if(!r.ok)throw 0;if(done)return;done=true;try{localStorage.setItem(K,u)}catch(e){}stationBoot(u);}).catch(function(){clearTimeout(t);fails++;fin();});}
  function list(src){lists++;fetch(src+'?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json()}).then(function(d){(d.urls||[]).forEach(probe)}).catch(function(){}).then(function(){lists--;fin();});}
  try{probe(localStorage.getItem(K))}catch(e){}
- list(new URL('live.json',location.href).href);list('https://aiym168.github.io/api/live.json');
+ probe('https://aiym.dpdns.org');
+ list(new URL('live.json',location.href).href);list('https://www.aiym.dpdns.org/api/live.json');
 })();
 </script>
 </body></html>
