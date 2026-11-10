@@ -142,11 +142,11 @@ function connect(){
   if (!S.B) return;
   try { if (S.ws) {S.ws.onclose = null; S.ws.close()} } catch (e) {}
   var ws = new WebSocket(S.B.replace(/^http/, 'ws') + '/ws' + (S.tok ? '?token=' + encodeURIComponent(S.tok) : '')); S.ws = ws;
-  ws.onopen = function(){setOffline(false); connect.n = 0; switchBase.k = 0; flush()};
+  ws.onopen = function(){setOffline(false); connect.n = 0; switchBase.k = 0; var q = S.wq || []; S.wq = []; q.forEach(function(m){ws.send(JSON.stringify(m))}); flush()};
   ws.onmessage = function(e){var m; try {m = JSON.parse(e.data)} catch (x) {return} onMsg(m)};
   ws.onclose = function(){if (S.ws !== ws) return; connect.n = (connect.n || 0) + 1; if (connect.n > 1) setOffline(true); if (connect.n > 1) switchBase(); else setTimeout(connect, 1000)};  // second drop in a row: re-race all addresses
 }
-function send(m){if (S.ws && S.ws.readyState === 1) S.ws.send(JSON.stringify(m)); else toast('实时连接断开了，正在重连…')}
+function send(m){if (S.ws && S.ws.readyState === 1) return S.ws.send(JSON.stringify(m)); if (m.t === 'ping') return; S.wq = (S.wq || []).concat([m]).slice(-20); if (!S.ws || S.ws.readyState > 1) toast('实时连接断开了，正在重连…')}  // queued until the connection is back
 setInterval(function(){if (S.ws && S.ws.readyState === 1) S.ws.send('{"t":"ping"}')}, 20000);
 function onMsg(m){
   if (m.t === 'hello' || m.t === 'online' || m.t === 'pong') {S.online = m.online || m.n; $('#onl').textContent = S.online + ' 人在线'}
