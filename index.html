@@ -154,13 +154,15 @@ if(!window.STATION_REMOTE)stationBoot('');
 <script>
 (function(){
  function off(t){var e=document.getElementById('title');if(e)e.textContent=t;var l=document.getElementById('lineText');if(l)l.textContent='信号站正在休眠或更换地址，通常几分钟内恢复。可以先去 AI 羊毛电台收听往期节目：https://aiym168.github.io/radio/';}
- fetch('https://aiym168.github.io/api/live.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json()}).then(function(d){
-  var U=(d.urls||[]),i=0;
-  (function next(){ if(i>=U.length){off('信号站暂时离线');return;} var u=U[i++];
-    var c=new AbortController(),t=setTimeout(function(){c.abort()},9000);
-    fetch(u+'/healthz',{cache:'no-store',signal:c.signal}).then(function(r){clearTimeout(t);if(!r.ok)throw 0;stationBoot(u);}).catch(function(){clearTimeout(t);next();});
-  })();
- }).catch(function(){off('信号站暂时离线');});
+ // all known addresses are tried at once; the first one that answers wins (same-origin list first, it needs no extra handshake)
+ var seen={},started=0,fails=0,lists=0,done=false,K='sg_be';
+ function fin(){if(!done&&lists===0&&fails>=started){done=true;off('信号站暂时离线');}}
+ function probe(u){if(!u||seen[u]||done)return;seen[u]=1;started++;
+  var c=window.AbortController?new AbortController():null,t=setTimeout(function(){c&&c.abort()},9000);
+  fetch(u+'/healthz',{cache:'no-store',signal:c&&c.signal}).then(function(r){clearTimeout(t);if(!r.ok)throw 0;if(done)return;done=true;try{localStorage.setItem(K,u)}catch(e){}stationBoot(u);}).catch(function(){clearTimeout(t);fails++;fin();});}
+ function list(src){lists++;fetch(src+'?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json()}).then(function(d){(d.urls||[]).forEach(probe)}).catch(function(){}).then(function(){lists--;fin();});}
+ try{probe(localStorage.getItem(K))}catch(e){}
+ list(new URL('live.json',location.href).href);list('https://aiym168.github.io/api/live.json');
 })();
 </script>
 </body></html>

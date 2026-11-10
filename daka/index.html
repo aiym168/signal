@@ -100,10 +100,32 @@ var SHARE = /^(127\.|localhost)|is-my\.app$|devis\.im$/.test(location.hostname) 
 // ---------- backend discovery (served by the station itself, or from the always-on page that looks up the station's current address)
 function base(){
   if (!window.DAKA_REMOTE) return fetch(location.origin + '/daka/api/overview', {cache: 'no-store'}).then(function(r){if (!r.ok) throw 0; return location.origin + '/daka'});
-  return fetch('https://aiym168.github.io/api/live.json?t=' + Date.now(), {cache: 'no-store'}).then(function(r){return r.json()}).then(function(d){
-    var U = d.urls || [], i = 0;
-    return new Promise(function(ok, no){(function nx(){if (i >= U.length) return no(); var u = U[i++];
-      fetch(u + '/daka/api/overview', {cache: 'no-store'}).then(function(r){if (!r.ok) throw 0; ok(u + '/daka')}).catch(nx)})()});
+  // every known address is tried at the same time and the first that answers wins; the page's own live.json needs no extra handshake
+  return new Promise(function(ok, no){
+    var seen = {}, started = 0, fails = 0, lists = 0, done = false, bad = base.bad || {};
+    function fin(){if (!done && lists === 0 && fails >= started) {done = true; base.bad = {}; no()}}
+    function probe(u){
+      if (!u || seen[u] || done) return; seen[u] = 1;
+      if (bad[u]) {setTimeout(function(){go(u)}, 2500); return}  // just failed: give the others a head start
+      go(u);
+    }
+    function go(u){
+      if (done) return; started++;
+      var c = window.AbortController ? new AbortController() : null, t = setTimeout(function(){c && c.abort()}, 9000);
+      fetch(u + '/daka/api/overview', {cache: 'no-store', signal: c && c.signal}).then(function(r){if (!r.ok) throw 0; return r.json()}).then(function(j){
+        clearTimeout(t); if (!j || !('online' in j)) throw 0;
+        if (done) return; done = true; base.bad = {}; try {localStorage.setItem('dk_be', u)} catch (e) {} ok(u + '/daka');
+      }).catch(function(){clearTimeout(t); fails++; fin()});
+    }
+    function list(src){
+      lists++;
+      var c = window.AbortController ? new AbortController() : null, t = setTimeout(function(){c && c.abort()}, 9000);
+      fetch(src + '?t=' + Date.now(), {cache: 'no-store', signal: c && c.signal}).then(function(r){return r.json()}).then(function(d){(d.urls || []).forEach(probe)})
+        .catch(function(){}).then(function(){clearTimeout(t); lists--; fin()});
+    }
+    try {probe(localStorage.getItem('dk_be'))} catch (e) {}
+    if (/is-my\.app$|devis\.im$|github\.io$/.test(location.hostname)) list(new URL('live.json', location.href).href);
+    list('https://aiym168.github.io/api/live.json');
   });
 }
 function api(p, body){
@@ -111,17 +133,18 @@ function api(p, body){
   var o = {method: body ? 'POST' : 'GET', headers: {'X-Token': S.tok || '', 'Content-Type': 'application/json'}};
   if (body) o.body = JSON.stringify(body);
   return fetch(S.B + '/api/' + p, o).then(function(r){return r.json().then(function(j){if (!r.ok) {var e = new Error(j.error || '出错了'); e.status = r.status; throw e} return j})},
-    function(){setOffline(true); throw new Error('离线中，稍后再试')});
+    function(){setOffline(true); switchBase(); throw new Error('离线中，稍后再试')});
 }
+function switchBase(){if (switchBase.t) return; if (S.B) {base.bad = base.bad || {}; base.bad[S.B.replace(/\/daka$/, '')] = 1} switchBase.k = (switchBase.k || 0) + 1; switchBase.t = setTimeout(function(){switchBase.t = 0; boot.retry()}, Math.min(20000, 400 * Math.pow(2, switchBase.k)))}
 function setOffline(v){S.offline = v; $('#offline').classList.toggle('show', v); $('#dot').classList.toggle('off', v); if (v) $('#onl').textContent = '离线'}
 // ---------- websocket
 function connect(){
   if (!S.B) return;
   try { if (S.ws) {S.ws.onclose = null; S.ws.close()} } catch (e) {}
   var ws = new WebSocket(S.B.replace(/^http/, 'ws') + '/ws' + (S.tok ? '?token=' + encodeURIComponent(S.tok) : '')); S.ws = ws;
-  ws.onopen = function(){setOffline(false); connect.n = 0; flush()};
+  ws.onopen = function(){setOffline(false); connect.n = 0; switchBase.k = 0; flush()};
   ws.onmessage = function(e){var m; try {m = JSON.parse(e.data)} catch (x) {return} onMsg(m)};
-  ws.onclose = function(){if (S.ws !== ws) return; connect.n = (connect.n || 0) + 1; if (connect.n > 2) setOffline(true); setTimeout(function(){connect.n > 2 ? boot.retry() : connect()}, Math.min(30000, 1500 * connect.n))};
+  ws.onclose = function(){if (S.ws !== ws) return; connect.n = (connect.n || 0) + 1; if (connect.n > 1) setOffline(true); if (connect.n > 1) switchBase(); else setTimeout(connect, 1000)};  // second drop in a row: re-race all addresses
 }
 function send(m){if (S.ws && S.ws.readyState === 1) S.ws.send(JSON.stringify(m)); else toast('实时连接断开了，正在重连…')}
 setInterval(function(){if (S.ws && S.ws.readyState === 1) S.ws.send('{"t":"ping"}')}, 20000);
@@ -530,6 +553,7 @@ boot.retry = function(){
     .catch(function(){setOffline(true); if (S.data) render(); clearTimeout(boot.t); boot.t = setTimeout(boot.retry, 20000)});
 };
 window.addEventListener('online', function(){boot.retry()});
+document.addEventListener('visibilitychange', function(){if (document.visibilityState === 'visible' && S.B && (!S.ws || S.ws.readyState > 1)) connect()});
 window.addEventListener('hashchange', deep);
 boot();
 })();
